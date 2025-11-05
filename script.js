@@ -75,6 +75,25 @@ function mkPreviewItem(file, url){
   const wrapper = document.createElement('div');
   wrapper.className = 'preview-item';
 
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'preview-remove-btn';
+  removeBtn.innerHTML = '&times;';
+  removeBtn.title = 'Remove image';
+  removeBtn.setAttribute('aria-label', 'Remove image');
+  
+  removeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrapper.remove();
+    
+    imageFiles = imageFiles.filter(item => item.file !== file);
+    
+    if (imageFiles.length === 0) {
+      downloadAllZipBtn.style.display = 'none';
+    }
+  });
+  
+  wrapper.appendChild(removeBtn);
+
   const thumb = document.createElement('div'); thumb.className='preview-thumb';
   const img = document.createElement('img'); img.src = url; img.alt = file.name;
   thumb.appendChild(img);
