@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WebTools</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <button id="hamburger" aria-label="Toggle menu">☰</button>
+    <h1>WebTools</h1>
+    <div class="top-actions">
+      <button id="themeToggle" title="Toggle theme">🌓</button>
+    </div>
+  </header>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <h2>WebTools</h2>
+      <h5>🛠️ SImon Oszust</h5>
+    </div>
+    <nav>
+      <ul>
+        <li class="active" data-tool="image-converter">🖼️ Image Converter</li>
+        <li data-tool="word-counter">📝 Word Counter</li>
+        <li data-tool="qr-generator">🔲 QR Generator</li>
+        <li data-tool="list-sorter">🔤 List Sorter</li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <!-- IMAGE CONVERTER -->
+    <section id="image-converter" class="tool active card">
+      <h2>🖼️ Image Converter</h2>
+      <p>Upload one or more images, preview, then convert to PNG / JPG / WebP / ICO / ICNS. Download individually or all as ZIP.</p>
+
+      <label class="file-drop" id="imageDrop">
+        <input type="file" id="imageInput" accept="image/*" multiple />
+        <span>Drag & drop images here or click to select</span>
+      </label>
+
+      <div class="controls-row">
+        <label>Format:
+          <select id="formatSelect">
+            <option value="png">PNG</option>
+            <option value="jpg">JPG</option>
+            <option value="webp">WebP</option>
+            <option value="ico">ICO</option>
+            <option value="icns">ICNS</option>
+          </select>
+        </label>
+
+        <label>Width (optional):
+          <input id="resizeWidth" type="number" min="8" placeholder="auto" />
+        </label>
+
+        <label id="qualityLabel" style="display:none">Quality:
+          <input id="qualitySlider" type="range" min="0.1" max="1" step="0.05" value="0.92" />
+          <span id="qualityValue">0.92</span>
+        </label>
+
+        <button id="convertAllBtn">Convert Selected</button>
+        <button id="downloadAllZip" style="display:none">Download All ZIP</button>
+      </div>
+
+      <div id="previewGrid" class="preview-grid" aria-live="polite"></div>
+    </section>
+
+    <!-- WORD COUNTER -->
+    <section id="word-counter" class="tool card">
+      <h2>📝 Word Counter</h2>
+      <textarea id="textInput" class="wide-textarea" rows="10" placeholder="Paste or type text..."></textarea>
+      <div class="stats-row">
+        <div><strong>Words:</strong> <span id="wordCount">0</span></div>
+        <div><strong>Characters:</strong> <span id="charCount">0</span></div>
+      </div>
+    </section>
+
+    <!-- QR GENERATOR -->
+    <section id="qr-generator" class="tool card">
+      <h2>🔲 QR Generator</h2>
+      <div class="qr-input-row">
+        <label class="qr-label" for="qrText">Enter text or URL:</label>
+        <textarea id="qrText" rows="1" placeholder="Text or URL..."></textarea>
+      </div>
+      <div class="controls-row">
+        <label>Size:
+          <select id="qrSize">
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="400">400</option>
+          </select>
+        </label>
+        <button id="generateQR">Generate</button>
+        <button id="saveQR" style="display:none">Save as PNG</button>
+      </div>
+      <canvas id="qrCanvas" aria-hidden="true" width="200" height="200"></canvas>
+    </section>
+
+    <!-- LIST SORTER -->
+    <section id="list-sorter" class="tool card">
+      <h2>🔤 List Sorter</h2>
+      <textarea id="listInput" rows="8" placeholder="Enter one item per line..."></textarea>
+      <div class="controls-row">
+        <label><input type="checkbox" id="uniqueOnly" /> Unique</label>
+        <label><input type="checkbox" id="caseSensitive" /> Case sensitive</label>
+        <label><input type="checkbox" id="numericSort" /> Numeric sort</label>
+        <label>Order:
+          <select id="sortOrder">
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
+        </label>
+        <button id="sortBtn">Sort</button>
+        <button id="clearList">Clear</button>
+      </div>
+      <textarea id="listOutput" rows="8" placeholder="Sorted result..." readonly></textarea>
+    </section>
+  </main>
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+  <script src="script.js"></script>
+</body>
+</html>
