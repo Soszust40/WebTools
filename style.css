@@ -293,6 +293,19 @@ button[disabled]{
   width: 100%;
 }
 
+.stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin-top: 12px;
+  font-size: 0.9em;
+  color: var(--muted);
+}
+
+.stats-row div {
+  white-space: nowrap;
+}
+
 #qrCanvas{
   display:block;
   margin-top:12px;

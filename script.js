@@ -348,6 +348,10 @@ saveQR.addEventListener('click', ()=>{
 const textInput = $('#textInput');
 const wordCount = $('#wordCount');
 const charCount = $('#charCount');
+const readingTime = $('#readingTime');
+const speakingTime = $('#speakingTime');
+const AVG_READING_WPM = 240;
+const AVG_SPEAKING_WPM = 140;
 
 textInput.addEventListener('input', () => {
   const text = textInput.value.trim();
@@ -355,6 +359,46 @@ textInput.addEventListener('input', () => {
   wordCount.textContent = words;
   charCount.textContent = text.length;
 });
+
+function formatTime(totalSeconds) {
+  if (totalSeconds < 1) {
+    return '0 sec';
+  }
+  if (totalSeconds < 60) {
+    return `${Math.ceil(totalSeconds)} sec`;
+  }
+  
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = Math.round(totalSeconds % 60);
+  
+  if (seconds === 60) {
+    return `${minutes + 1} min 0 sec`;
+  }
+  
+  return `${minutes} min ${seconds} sec`;
+}
+
+/* Word Count Timer */
+if (textInput) {
+  textInput.addEventListener('input', () => {
+    const text = textInput.value.trim();
+    const words = text ? text.split(/\s+/).length : 0;
+
+    wordCount.textContent = words;
+    charCount.textContent = text.length;
+
+    if (words === 0) {
+      readingTime.textContent = '0 sec';
+      speakingTime.textContent = '0 sec';
+    } else {
+      const readingSecs = (words / AVG_READING_WPM) * 60;
+      const speakingSecs = (words / AVG_SPEAKING_WPM) * 60;
+
+      readingTime.textContent = formatTime(readingSecs);
+      speakingTime.textContent = formatTime(speakingSecs);
+    }
+  });
+}
 
 /* List Sorter */
 const sortBtn = $('#sortBtn');
@@ -398,3 +442,5 @@ document.addEventListener('click', (e) => {
     }
   }
 });
+
+
