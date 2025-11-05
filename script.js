@@ -42,19 +42,19 @@ if(themeSwitch){
     localStorage.setItem('theme', themeSwitch.checked ? 'dark' : 'light');
   });
 }
+
 window.addEventListener('load', ()=> {
   const saved = localStorage.getItem('theme');
-  if(saved === 'dark'){ document.body.classList.add('dark'); if(themeSwitch) themeSwitch.checked = true; }
-  if(window.innerWidth < 900) sidebar.style.transform = 'translateX(-100%)';
-});
 
-/* Mobile - Close Sidebar */
-document.addEventListener('click', (e)=>{
-  if(window.innerWidth < 900){
-    if(!sidebar.contains(e.target) && !hamburger.contains(e.target)){
-      sidebar.style.transform = 'translateX(-100%)';
-    }
+  if(saved === 'light'){ 
+    document.body.classList.remove('dark'); 
+    if(themeSwitch) themeSwitch.checked = false; 
+  } else {
+    if(themeSwitch) themeSwitch.checked = true;
   }
+
+  if(window.innerWidth < 900) sidebar.style.transform = 'translateX(-100%)';
+  updateQualityVisibility();
 });
 
 /* Image Converter */
@@ -63,11 +63,14 @@ const imageDrop = $('#imageDrop');
 const previewGrid = $('#previewGrid');
 const formatSelect = $('#formatSelect');
 const convertAllBtn = $('#convertAllBtn');
-const downloadAllZipBtn = $('#downloadAllZip');
 const resizeWidthInput = $('#resizeWidth');
 const qualitySlider = $('#qualitySlider');
 const qualityValue = $('#qualityValue');
 const qualityLabel = $('#qualityLabel');
+const resizeHeightInput = $('#resizeHeight');
+const invertColorsCheck = $('#invertColors');
+const imageSettingsBtn = $('#imageSettingsBtn');
+const imageSettingsPopup = $('#imageSettingsPopup');
 
 let imageFiles = [];
 
@@ -88,7 +91,7 @@ function mkPreviewItem(file, url){
     imageFiles = imageFiles.filter(item => item.file !== file);
     
     if (imageFiles.length === 0) {
-      downloadAllZipBtn.style.display = 'none';
+      convertAllBtn.style.display = 'none';
     }
   });
   
@@ -135,7 +138,7 @@ function mkPreviewItem(file, url){
 function resetPreviews(){
   previewGrid.innerHTML = '';
   imageFiles = [];
-  downloadAllZipBtn.style.display = 'none';
+  convertAllBtn.style.display = 'none';
 }
 
 function handleFiles(files){
@@ -147,7 +150,7 @@ function handleFiles(files){
     const preview = mkPreviewItem(file, url);
     imageFiles.push({file, url, preview});
   });
-  if(imageFiles.length) downloadAllZipBtn.style.display = 'inline-block';
+  if(imageFiles.length) convertAllBtn.style.display = 'inline-block';
 }
 
 imageDrop.addEventListener('dragover', (e)=> { e.preventDefault(); imageDrop.classList.add('dragover'); });
@@ -155,7 +158,7 @@ imageDrop.addEventListener('dragleave', ()=> imageDrop.classList.remove('dragove
 imageDrop.addEventListener('drop', (e)=> { e.preventDefault(); imageDrop.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
 imageInput.addEventListener('change', (e)=> handleFiles(e.target.files));
 
-/* helpers for icon builders */
+/* Icon Builders */
 function dataURLToUint8Array(dataURL){
   const base64 = dataURL.split(',')[1];
   const raw = atob(base64);
@@ -202,19 +205,39 @@ function buildIcnsFromPng(pngBytes){
 
 /* Convert File to Format */
 function convertFileToFormat(file, opts={}){
-  const {targetFormat='png', width=null, quality=0.92} = opts;
+  // Updated options
+  const {targetFormat='png', width=null, height=null, quality=0.92, invert=false} = opts;
   return new Promise((resolve, reject)=>{
     const reader = new FileReader();
     reader.onload = () => {
       const img = new Image();
       img.onload = () => {
-        const w = width ? Number(width) : img.width;
-        const scale = w / img.width;
-        const h = width ? Math.round(img.height * scale) : img.height;
+        // Updated sizing logic
+        let w = img.width;
+        let h = img.height;
+        if (width && height) {
+            w = Number(width);
+            h = Number(height);
+        } else if (width) {
+            w = Number(width);
+            const scale = w / img.width;
+            h = Math.round(img.height * scale);
+        } else if (height) {
+            h = Number(height);
+            const scale = h / img.height;
+            w = Math.round(img.width * scale);
+        }
+        
         const canvas = document.createElement('canvas');
         canvas.width = w;
         canvas.height = h;
         const ctx = canvas.getContext('2d');
+        
+        // Apply invert filter if checked
+        if (invert) {
+            ctx.filter = 'invert(1)';
+        }
+        
         ctx.drawImage(img, 0, 0, w, h);
 
         if(targetFormat === 'ico'){
@@ -246,11 +269,18 @@ function convertFileToFormat(file, opts={}){
 
 async function convertAndDownload(files){
   const fmt = formatSelect.value;
+  // Read Settings
   const width = resizeWidthInput.value ? Number(resizeWidthInput.value) : null;
+  const height = resizeHeightInput.value ? Number(resizeHeightInput.value) : null;
+  const invert = invertColorsCheck.checked;
   const quality = Number(qualitySlider.value) || 0.92;
+  
   if(files.length === 0) return alert('No files selected');
+
+  const options = {targetFormat: fmt, width, height, invert, quality};
+
   if(files.length === 1){
-    const res = await convertFileToFormat(files[0], {targetFormat: fmt, width, quality});
+    const res = await convertFileToFormat(files[0], options);
     const url = URL.createObjectURL(res.blob);
     const a = document.createElement('a'); a.href = url; a.download = res.name; a.click();
     URL.revokeObjectURL(url);
@@ -258,7 +288,7 @@ async function convertAndDownload(files){
   }
   const zip = new JSZip();
   for(const f of files){
-    const res = await convertFileToFormat(f, {targetFormat: fmt, width, quality});
+    const res = await convertFileToFormat(f, options);
     zip.file(res.name, res.blob);
   }
   const content = await zip.generateAsync({type:'blob'});
@@ -268,11 +298,6 @@ async function convertAndDownload(files){
 convertAllBtn.addEventListener('click', ()=> {
   const selected = imageFiles.filter(i => i.preview.checkbox.checked).map(i=>i.file);
   if(selected.length === 0) return alert('No images selected');
-  convertAndDownload(selected);
-});
-downloadAllZipBtn.addEventListener('click', async ()=> {
-  const selected = imageFiles.map(i => i.file);
-  if(selected.length === 0) return;
   convertAndDownload(selected);
 });
 
@@ -347,3 +372,21 @@ sortBtn.addEventListener('click', ()=>{
   listOutput.value = arr.join('\n');
 });
 clearList.addEventListener('click', ()=>{ listInput.value=''; listOutput.value=''; });
+
+/* Image Settings Popup */
+imageSettingsBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  imageSettingsPopup.classList.toggle('visible');
+});
+
+document.addEventListener('click', (e) => {
+  if (imageSettingsPopup.classList.contains('visible') && !imageSettingsPopup.contains(e.target) && !imageSettingsBtn.contains(e.target)) {
+    imageSettingsPopup.classList.remove('visible');
+  }
+
+  if(window.innerWidth < 900){
+    if(!sidebar.contains(e.target) && !hamburger.contains(e.target)){
+      sidebar.style.transform = 'translateX(-100%)';
+    }
+  }
+});

@@ -6,7 +6,7 @@
   <title>WebTools</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="dark">
   <header class="topbar">
     <button id="hamburger" aria-label="Toggle menu">☰</button>
     <h1>WebTools</h1>
@@ -52,17 +52,28 @@
           </select>
         </label>
 
-        <label>Width (optional):
-          <input id="resizeWidth" type="number" min="8" placeholder="auto" />
-        </label>
-
         <label id="qualityLabel" style="display:none">Quality:
           <input id="qualitySlider" type="range" min="0.1" max="1" step="0.05" value="0.92" />
           <span id="qualityValue">0.92</span>
         </label>
 
-        <button id="convertAllBtn">Convert Selected</button>
-        <button id="downloadAllZip" style="display:none">Download All ZIP</button>
+        <button id="convertAllBtn" style="display:none;">Convert Selected</button>
+        
+        <div class="settings-wrapper">
+          <button id="imageSettingsBtn" class="icon-btn" title="Image Settings">⚙️</button>
+          <div id="imageSettingsPopup" class="settings-popup">
+            <label>Width (optional):
+              <input id="resizeWidth" type="number" min="8" placeholder="auto" />
+            </label>
+            <label>Height (optional):
+              <input id="resizeHeight" type="number" min="8" placeholder="auto" />
+            </label>
+            <label style="flex-direction: row; align-items: center; gap: 8px;">
+              <input type="checkbox" id="invertColors" /> Invert Colors
+            </label>
+          </div>
+        </div>
+        
       </div>
 
       <div id="previewGrid" class="preview-grid" aria-live="polite"></div>
