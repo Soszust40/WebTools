@@ -13,6 +13,7 @@ function showTool(id){
   toolItems.forEach(i=>i.classList.toggle('active', i.dataset.tool===id));
   tools.forEach(t=>t.classList.toggle('active', t.id===id));
 }
+
 toolItems.forEach(item=>{
   item.addEventListener('click', ()=> {
     showTool(item.dataset.tool);
@@ -36,6 +37,7 @@ if(themeToggleTop){
     if(themeSwitch) themeSwitch.checked = dark;
   });
 }
+
 if(themeSwitch){
   themeSwitch.addEventListener('change', ()=> {
     document.body.classList.toggle('dark', themeSwitch.checked);
@@ -166,6 +168,7 @@ function dataURLToUint8Array(dataURL){
   for(let i=0;i<raw.length;i++) arr[i]=raw.charCodeAt(i);
   return arr;
 }
+
 function buildIcoFromPng(pngBytes){
   const pngLen = pngBytes.length;
   const header = new ArrayBuffer(6 + 16);
@@ -180,11 +183,15 @@ function buildIcoFromPng(pngBytes){
   dv.setUint16(10, 1, true);
   dv.setUint16(12, 32, true);
   dv.setUint32(14, pngLen, true);
+
+  dv.setUint32(18, 22, true); 
+
   const data = new Uint8Array(header.byteLength + pngLen);
   data.set(new Uint8Array(header), 0);
   data.set(pngBytes, header.byteLength);
   return data.buffer;
 }
+
 function buildIcnsFromPng(pngBytes){
   function chunk(type, data){
     const len = 8 + data.length;
@@ -309,6 +316,7 @@ function updateQualityVisibility(){
     qualityLabel.style.display = 'none';
   }
 }
+
 formatSelect.addEventListener('change', updateQualityVisibility);
 window.addEventListener('load', updateQualityVisibility);
 
