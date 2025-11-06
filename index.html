@@ -5,40 +5,40 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>WebTools</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body class="dark">
   <header class="topbar">
     <button id="hamburger" aria-label="Toggle menu">☰</button>
     <h1>WebTools</h1>
     <div class="top-actions">
-      <button id="themeToggle" title="Toggle theme">🌓</button>
+      <button id="themeToggle" title="Toggle theme"><i class="fa-solid fa-moon"></i></button>
     </div>
   </header>
 
   <aside class="sidebar" id="sidebar">
     <div class="brand">
       <h2>WebTools</h2>
-      <h5>🛠️ <a href="https://github.com/Soszust40" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">Simon Oszust</a></h5>
+      <h5><i class="fa-solid fa-screwdriver-wrench" style="margin-right: 8px;"></i> <a href="https://github.com/Soszust40" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">Simon Oszust</a></h5>
     </div>
     <nav>
       <ul>
-        <li class="active" data-tool="image-converter">🖼️ Image Converter</li>
-        <li data-tool="pdf-tools">📄 PDF Tools</li>
-        <li data-tool="word-counter">📝 Word Counter</li>
-        <li data-tool="citation-maker">📚 Citation Maker</li>
-        <li data-tool="qr-generator">🔲 QR Generator</li>
-        <li data-tool="list-sorter">🔤 List Sorter</li>
-        <li data-tool="color-converter">🎨 Color Converter</li>
-        <li data-tool="diff-checker">🔄 Text/Code Diff</li>
-        <li data-tool="vigenere-cipher">🔒 Vigenère Cipher</li>
+        <li class="active" data-tool="image-converter"><i class="fa-solid fa-image"></i> Image Converter</li>
+        <li data-tool="pdf-tools"><i class="fa-solid fa-file-pdf"></i> PDF Tools</li>
+        <li data-tool="word-counter"><i class="fa-solid fa-pen-to-square"></i> Word Counter</li>
+        <li data-tool="citation-maker"><i class="fa-solid fa-book"></i> Citation Maker</li>
+        <li data-tool="qr-generator"><i class="fa-solid fa-qrcode"></i> QR Generator</li>
+        <li data-tool="list-sorter"><i class="fa-solid fa-arrow-down-a-z"></i> List Sorter</li>
+        <li data-tool="color-converter"><i class="fa-solid fa-palette"></i> Color Converter</li>
+        <li data-tool="diff-checker"><i class="fa-solid fa-code-compare"></i> Text/Code Diff</li>
+        <li data-tool="vigenere-cipher"><i class="fa-solid fa-lock"></i> Vigenère Cipher</li>
       </ul>
     </nav>
   </aside>
 
   <main class="main-content">
-    <!-- IMAGE CONVERTER -->
     <section id="image-converter" class="tool active card">
-      <h2>🖼️ Image Converter</h2>
+      <h2><i class="fa-solid fa-image"></i> Image Converter</h2>
       <p>Upload one or more images, preview, then convert to PNG / JPG / WebP / ICO / ICNS. Download individually or all as ZIP.</p>
 
       <label class="file-drop" id="imageDrop">
@@ -65,7 +65,7 @@
         <button id="convertAllBtn" style="display:none;">Convert Selected</button>
         
         <div class="settings-wrapper">
-          <button id="imageSettingsBtn" class="icon-btn" title="Image Settings">⚙️</button>
+          <button id="imageSettingsBtn" class="icon-btn" title="Image Settings"><i class="fa-solid fa-gear"></i></button>
           <div id="imageSettingsPopup" class="settings-popup">
             <label>Width (optional):
               <input id="resizeWidth" type="number" min="8" placeholder="auto" />
@@ -84,9 +84,8 @@
       <div id="previewGrid" class="preview-grid" aria-live="polite"></div>
     </section>
 
-    <!-- PDF TOOLS -->
     <section id="pdf-tools" class="tool card">
-      <h2>📄 PDF Tools</h2>
+      <h2><i class="fa-solid fa-file-pdf"></i> PDF Tools</h2>
       <p>Tools to compress, combine, or split PDF files.</p>
 
       <div class="pdf-tool-options">
@@ -132,9 +131,8 @@
       </div>
     </section>
 
-    <!-- WORD COUNTER -->
     <section id="word-counter" class="tool card">
-      <h2>📝 Word Counter</h2>
+      <h2><i class="fa-solid fa-pen-to-square"></i> Word Counter</h2>
       <textarea id="textInput" class="wide-textarea" rows="10" placeholder="Paste or type text..."></textarea>
       <div class="stats-row">
         <div><strong>Words:</strong> <span id="wordCount">0</span></div>
@@ -144,9 +142,8 @@
       </div>
     </section>
 
-    <!-- CITATION MAKER -->
     <section id="citation-maker" class="tool card">
-      <h2>📚 Citation Maker</h2>
+      <h2><i class="fa-solid fa-book"></i> Citation Maker</h2>
       <p>Enter source information to generate a citation in APA, MLA, or Chicago format.</p>
       
       <div class="controls-row">
@@ -154,6 +151,11 @@
           <select id="citeType">
             <option value="website">Website</option>
             <option value="book">Book</option>
+            <option value="book-chapter">Book Chapter</option>
+            <option value="journal">Journal Article</option>
+            <option value="magazine">Magazine Article</option>
+            <option value="newspaper">Newspaper Article</option>
+            <option value="film">Film / Video</option>
           </select>
         </label>
         <label>Format:
@@ -166,48 +168,101 @@
       </div>
 
       <div class="citation-form-grid" id="citationForm">
-        
-        <div class="cite-group" data-type="book website">
+        <div class="cite-group" data-type="book website book-chapter journal magazine newspaper">
           <label>Author (Last, First M.):</label>
           <input type="text" id="citeAuthor" placeholder="e.g., Doe, John A.">
         </div>
-        
-        <div class="cite-group" data-type="website">
-          <label>Page/Article Title:</label>
-          <input type="text" id="citeWebTitle" placeholder="e.g., How to Code">
+        <div class="cite-group" data-type="website journal magazine newspaper">
+          <label>Article/Page Title:</label>
+          <input type="text" id="citeArticleTitle" placeholder="e.g., The Impact of AI">
         </div>
+        <div class="cite-group" data-type="website magazine newspaper">
+          <label>Publication Date (YYYY-MM-DD):</label>
+          <input type="text" id="citePublicationDate" placeholder="e.g., 2023-10-28">
+        </div>
+        <div class="cite-group" data-type="book book-chapter journal film">
+          <label>Publication Year:</label>
+          <input type="text" id="citeYear" placeholder="e.g., 2023">
+        </div>
+        <div class="cite-group" data-type="book book-chapter">
+          <label>Book Title:</label>
+          <input type="text" id="citeBookTitle" placeholder="e.g., The Art of Coding">
+        </div>
+
         <div class="cite-group" data-type="website">
           <label>Website Name:</label>
           <input type="text" id="citeSiteName" placeholder="e.g., WebTools Project">
         </div>
-        <div class="cite-group" data-type="website">
-          <label>URL:</label>
-          <input type="text" id="citeURL" placeholder="https://...">
-        </div>
-        <div class="cite-group" data-type="website">
-          <label>Publication Date (YYYY-MM-DD):</label>
-          <input type="text" id="citeWebDate" placeholder="e.g., 2023-10-28">
+        <div class="cite-group" data-type="website journal">
+          <label>URL / DOI:</label>
+          <input type="text" id="citeURL" placeholder="https://... or DOI">
         </div>
         <div class="cite-group" data-type="website">
           <label>Access Date (YYYY-MM-DD):</label>
           <input type="text" id="citeAccessDate" placeholder="(Optional, for MLA)">
         </div>
 
-        <div class="cite-group" data-type="book">
-          <label>Book Title:</label>
-          <input type="text" id="citeBookTitle" placeholder="e.g., The Art of Coding">
+        <div class="cite-group" data-type="book-chapter">
+          <label>Chapter Title:</label>
+          <input type="text" id="citeChapterTitle" placeholder="e.g., The Turning Point">
+        </div>
+        <div class="cite-group" data-type="book-chapter">
+          <label>Editor(s):</label>
+          <input type="text" id="citeEditors" placeholder="e.g., Smith, J. (Ed.)">
         </div>
         <div class="cite-group" data-type="book">
+          <label>Edition:</label>
+          <input type="text" id="citeEdition" placeholder="e.g., 2nd ed.">
+        </div>
+        <div class="cite-group" data-type="book book-chapter">
           <label>Publisher:</label>
           <input type="text" id="citePublisher" placeholder="e.g., Tech Press">
         </div>
-        <div class="cite-group" data-type="book">
+        <div class="cite-group" data-type="book book-chapter">
           <label>Publication City:</label>
           <input type="text" id="citePubCity" placeholder="e.g., New York">
         </div>
-        <div class="cite-group" data-type="book">
-          <label>Publication Year:</label>
-          <input type="text" id="citeBookYear" placeholder="e.g., 2023">
+        
+        <div class="cite-group" data-type="journal">
+          <label>Journal Name:</label>
+          <input type="text" id="citeJournalName" placeholder="e.g., Journal of Computing">
+        </div>
+        <div class="cite-group" data-type="magazine">
+          <label>Magazine Name:</label>
+          <input type="text" id="citeMagazineName" placeholder="e.g., Tech Weekly">
+        </div>
+        <div class="cite-group" data-type="newspaper">
+          <label>Newspaper Name:</label>
+          <input type="text" id="citeNewspaperName" placeholder="e.g., The Daily Times">
+        </div>
+        <div class="cite-group" data-type="journal magazine">
+          <label>Volume:</label>
+          <input type="text" id="citeVolume" placeholder="e.g., 42">
+        </div>
+        <div class="cite-group" data-type="journal magazine">
+          <label>Issue:</label>
+          <input type="text" id="citeIssue" placeholder="e.g., 3">
+        </div>
+        <div class="cite-group" data-type="book-chapter journal magazine newspaper">
+          <label>Page Range:</label>
+          <input type="text" id="citePageRange" placeholder="e.g., 45-62 or pp. 45-62">
+        </div>
+        <div class="cite-group" data-type="newspaper">
+          <label>Section:</label>
+          <input type="text" id="citeSection" placeholder="e.g., B2">
+        </div>
+
+        <div class="cite-group" data-type="film">
+          <label>Film/Video Title:</label>
+          <input type="text" id="citeFilmTitle" placeholder="e.g., A Coder's Journey">
+        </div>
+        <div class="cite-group" data-type="film">
+          <label>Director:</label>
+          <input type="text" id="citeDirector" placeholder="e.g., Smith, Jane">
+        </div>
+        <div class="cite-group" data-type="film">
+          <label>Studio / Distributor:</label>
+          <input type="text" id="citeStudio" placeholder="e.g., Tech Films">
         </div>
 
       </div>
@@ -221,9 +276,8 @@
       <textarea id="citeOutput" class="wide-textarea" rows="5" placeholder="Your citation will appear here..." readonly></textarea>
     </section>
 
-    <!-- QR GENERATOR -->
     <section id="qr-generator" class="tool card">
-      <h2>🔲 QR Generator</h2>
+      <h2><i class="fa-solid fa-qrcode"></i> QR Generator</h2>
       <div class="qr-input-row">
         <label class="qr-label" for="qrText" style="display: block; margin-bottom: 6px;">Enter text or URL:</label>
         <textarea id="qrText" rows="2" placeholder="Text or URL..." style="width: 100%;"></textarea>
@@ -248,9 +302,8 @@
       <canvas id="qrCanvas" aria-hidden="true" width="200" height="200"></canvas>
     </section>
 
-    <!-- LIST SORTER -->
     <section id="list-sorter" class="tool card">
-      <h2>🔤 List Sorter</h2>
+      <h2><i class="fa-solid fa-arrow-down-a-z"></i> List Sorter</h2>
       <textarea id="listInput" rows="8" placeholder="Enter one item per line..."></textarea>
       <div class="controls-row">
         <label><input type="checkbox" id="uniqueOnly" /> Unique</label>
@@ -268,9 +321,8 @@
       <textarea id="listOutput" rows="8" placeholder="Sorted result..." readonly></textarea>
     </section>
 
-    <!-- COLOR CONVERTER -->
     <section id="color-converter" class="tool card">
-      <h2>🎨 Color Converter</h2>
+      <h2><i class="fa-solid fa-palette"></i> Color Converter</h2>
       <p>Select a color and see its value in Hex, RGB, and HSL formats.</p>
       
       <div class="color-converter-layout">
@@ -318,13 +370,16 @@
             </div>
             </div>
 
+          <button id="getComplementaryBtn" style="width: 100%; margin-top: 10px;">
+            <i class="fa-solid fa-circle-half-stroke"></i> Get Complementary
+          </button>
+
         </div>
       </div>
     </section>
 
-    <!-- DIFF CHECKER -->
     <section id="diff-checker" class="tool card">
-      <h2>🔄 Text/Code Diff</h2>
+      <h2><i class="fa-solid fa-code-compare"></i> Text/Code Diff</h2>
       <p>Compare two blocks of text or code to see the differences highlighted.</p>
       
       <div class="diff-layout">
@@ -355,15 +410,14 @@
       </div>
     </section>
 
-    <!-- VIGENERE CIPHER -->
     <section id="vigenere-cipher" class="tool card">
-      <h2>🔒 Vigenère Cipher</h2>
+      <h2><i class="fa-solid fa-lock"></i> Vigenère Cipher</h2>
       <p>Encrypt or decrypt text using a keyword.</p>
       
       <label for="vigenereKey" style="display: block; margin-bottom: 6px;">Keyword:</label>
       <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
         <input type="text" id="vigenereKey" placeholder="Secret keyword..." style="flex: 1; margin: 0;">
-        <button id="vigenereGenerateKeyBtn" type="button" title="Generate Random Key" class="icon-btn">🎲</button>
+        <button id="vigenereGenerateKeyBtn" type="button" title="Generate Random Key" class="icon-btn"><i class="fa-solid fa-dice"></i></button>
       </div>
 
       <label for="vigenereInput" style="display: block; margin-bottom: 6px;">Input Text:</label>
@@ -379,8 +433,8 @@
       </div>
 
       <div class="controls-row" style="gap: 12px;">
-        <button id="vigenereEncryptBtn">Encrypt 🔒</button>
-        <button id="vigenereDecryptBtn">Decrypt 🔓</button>
+        <button id="vigenereEncryptBtn"><i class="fa-solid fa-lock"></i> Encrypt</button>
+        <button id="vigenereDecryptBtn"><i class="fa-solid fa-unlock"></i> Decrypt</button>
       </div>
 
       <label for="vigenereOutput" style="display: block; margin-top: 12px; margin-bottom: 6px;">Output Text:</label>
@@ -388,7 +442,6 @@
     </section>
   </main>
 
-  <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>

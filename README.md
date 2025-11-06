@@ -10,7 +10,7 @@ Languages: English
 
 * **Navigate:** Use the sidebar menu to select your desired tool. The active tool will be highlighted.
 * **Use Tool:** Follow the on-screen instructions for each tool (e.g., drag-and-drop files, type text, adjust settings).
-* **Toggle Theme:** Use the **🌓** icon in the top-right corner to switch between light and dark modes.
+* **Toggle Theme:** Use the moon icon in the top-right corner to switch between light and dark modes.
 * **Mobile:** The sidebar can be toggled on mobile devices using the **☰** hamburger menu.
 
 ## Features
@@ -32,6 +32,11 @@ This project includes the following tools:
     * Provides real-time counts for **words** and **characters** as you type.
     * Calculates estimated **reading time** (at 240 WPM) and **speaking time** (at 140 WPM).
 
+* **📚 Citation Maker**
+    * Generate citations for various sources (Website, Book, Journal, Film, etc.).
+    * Formats in **APA 7**, **MLA 9**, and **Chicago 17** styles.
+    * Dynamically shows the required fields for each source type.
+
 * **🔲 QR Generator**
     * Generate a QR code from any text or URL.
     * Save the generated code as a **PNG** file in various sizes (200px, 300px, 400px).
@@ -46,6 +51,11 @@ This project includes the following tools:
     * An interactive color picker.
     * Provides real-time conversion and syncing between **HEX**, **RGB**, and **HSL** color models.
     * Update values using the color picker, text inputs, or sliders.
+    * Get the complementary (opposite) of your current color with one click.
+
+* **🔄 Text/Code Diff**
+    * Compare two blocks of text or code to see the differences highlighted.
+    * Comparison modes: **Lines**, **Words**, or **Characters**.
 
 * **🔒 Vigenère Cipher**
     * Encrypt or decrypt text using the classic Vigenère cipher.
@@ -62,3 +72,4 @@ This project includes the following tools:
     * [JSZip](https://stuk.github.io/jszip/) for creating .zip archives in the browser.
     * [FileSaver.js](https://github.com/eligrey/FileSaver.js/) for triggering file downloads.
     * [qrcode.js](https://github.com/davidshimjs/qrcodejs) for generating QR codes on the canvas.
+    * [jsdiff](https://github.com/kpdecker/jsdiff) for comparing text and code.
