@@ -23,9 +23,12 @@
     <nav>
       <ul>
         <li class="active" data-tool="image-converter">🖼️ Image Converter</li>
+        <li data-tool="pdf-tools">📄 PDF Tools</li>
         <li data-tool="word-counter">📝 Word Counter</li>
         <li data-tool="qr-generator">🔲 QR Generator</li>
         <li data-tool="list-sorter">🔤 List Sorter</li>
+        <li data-tool="color-converter">🎨 Color Converter</li>
+        <li data-tool="vigenere-cipher">🔒 Vigenère Cipher</li>
       </ul>
     </nav>
   </aside>
@@ -79,6 +82,54 @@
       <div id="previewGrid" class="preview-grid" aria-live="polite"></div>
     </section>
 
+    <!-- PDF TOOLS -->
+    <section id="pdf-tools" class="tool card">
+      <h2>📄 PDF Tools</h2>
+      <p>Tools to compress, combine, or split PDF files.</p>
+
+      <div class="pdf-tool-options">
+        
+        <div class="pdf-tool-option">
+          <button id="pdfCompressClear" class="pdf-clear-btn" title="Clear selection" style="display: none;">&times;</button>
+          <h3>Compress PDF</h3>
+          <p class="muted">Reduce file size (basic optimization).</p>
+          <label class="file-drop" id="pdfCompressDrop">
+            <input type="file" id="pdfCompressInput" accept=".pdf" />
+            <span>Drag & drop PDF to compress</span>
+          </label>
+          <button id="pdfCompressBtn" style="width: 100%; margin-top: 10px; display: none;">Compress</button>
+        </div>
+        
+        <div class="pdf-tool-option">
+          <button id="pdfCombineClear" class="pdf-clear-btn" title="Clear selection" style="display: none;">&times;</button>
+          <h3>Combine PDFs</h3>
+          <p class="muted">Merge multiple PDFs into one file.</p>
+          <label class="file-drop" id="pdfCombineDrop">
+            <input type="file" id="pdfCombineInput" accept=".pdf" multiple />
+            <span>Drag & drop PDFs to combine</span>
+          </label>
+          <button id="pdfCombineBtn" style="width: 100%; margin-top: 10px; display: none;">Combine</button>
+        </div>
+
+        <div class="pdf-tool-option">
+          <button id="pdfSplitClear" class="pdf-clear-btn" title="Clear selection" style="display: none;">&times;</button>
+          <h3>Split / Extract Pages</h3>
+          <p class="muted">Extract specific pages from a PDF.</p>
+          <label class="file-drop" id="pdfSplitDrop">
+            <input type="file" id="pdfSplitInput" accept=".pdf" />
+            <span>Drag & drop PDF to split</span>
+          </label>
+          <div class="controls-row" style="margin-top: 10px;">
+            <label for="pdfSplitRange" style="width: 100%;">Page Range:
+              <input type="text" id="pdfSplitRange" placeholder="e.g., 1-3, 5, 7" style="flex: 1;" />
+            </label>
+          </div>
+          <button id="pdfSplitBtn" style="width: 100%; margin-top: 10px; display: none;">Split</button>
+        </div>
+
+      </div>
+    </section>
+
     <!-- WORD COUNTER -->
     <section id="word-counter" class="tool card">
       <h2>📝 Word Counter</h2>
@@ -95,8 +146,8 @@
     <section id="qr-generator" class="tool card">
       <h2>🔲 QR Generator</h2>
       <div class="qr-input-row">
-        <label class="qr-label" for="qrText">Enter text or URL:</label>
-        <textarea id="qrText" rows="1" placeholder="Text or URL..."></textarea>
+        <label class="qr-label" for="qrText" style="display: block; margin-bottom: 6px;">Enter text or URL:</label>
+        <textarea id="qrText" rows="2" placeholder="Text or URL..." style="width: 100%;"></textarea>
       </div>
       <div class="controls-row">
         <label>Size:
@@ -131,12 +182,85 @@
       </div>
       <textarea id="listOutput" rows="8" placeholder="Sorted result..." readonly></textarea>
     </section>
+
+    <!-- COLOR CONVERTER -->
+    <section id="color-converter" class="tool card">
+      <h2>🎨 Color Converter</h2>
+      <p>Select a color and see its value in Hex, RGB, and HSL formats.</p>
+      
+      <div class="color-converter-layout">
+        
+        <div class="color-picker-wrapper">
+          <input type="color" id="colorPicker" value="#333333">
+        </div>
+        
+        <div class="color-inputs-wrapper">
+          
+          <div class="color-input-group">
+            <label for="hexInput">HEX</label>
+            <input type="text" id="hexInput" value="#333333">
+          </div>
+          
+          <div class="color-input-group">
+            <label>RGB (Red, Green, Blue)</label>
+            <div class="input-row">
+              <input type="number" id="rgbR" min="0" max="255" value="51" aria-label="Red">
+              <input type="number" id="rgbG" min="0" max="255" value="51" aria-label="Green">
+              <input type="number" id="rgbB" min="0" max="255" value="51" aria-label="Blue">
+            </div>
+          </div>
+          
+          <div class="color-input-group">
+            <label>HSL (Hue, Saturation, Lightness)</label>
+            <div class="input-row">
+              <input type="number" id="hslH" min="0" max="360" value="0" aria-label="Hue">
+              <input type="number" id="hslS" min="0" max="100" value="0" aria-label="Saturation">
+              <input type="number" id="hslL" min="0" max="100" value="20" aria-label="Lightness">
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- VIGENERE CIPHER -->
+    <section id="vigenere-cipher" class="tool card">
+      <h2>🔒 Vigenère Cipher</h2>
+      <p>Encrypt or decrypt text using a keyword.</p>
+      
+      <label for="vigenereKey" style="display: block; margin-bottom: 6px;">Keyword:</label>
+      <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+        <input type="text" id="vigenereKey" placeholder="Secret keyword..." style="flex: 1; margin: 0;">
+        <button id="vigenereGenerateKeyBtn" type="button" title="Generate Random Key" class="icon-btn">🎲</button>
+      </div>
+
+      <label for="vigenereInput" style="display: block; margin-bottom: 6px;">Input Text:</label>
+      <textarea id="vigenereInput" class="wide-textarea" rows="8" placeholder="Enter text to encrypt or decrypt..."></textarea>
+
+      <div class="controls-row" style="margin-top: 12px; margin-bottom: 12px;">
+        <label>
+          <input type="checkbox" id="vigenerePreserveCase" /> Preserve Case
+        </label>
+        <label>
+          <input type="checkbox" id="vigenereKeepNonAlpha" checked /> Keep Non-Alphabetic Chars
+        </label>
+      </div>
+
+      <div class="controls-row" style="gap: 12px;">
+        <button id="vigenereEncryptBtn">Encrypt 🔒</button>
+        <button id="vigenereDecryptBtn">Decrypt 🔓</button>
+      </div>
+
+      <label for="vigenereOutput" style="display: block; margin-top: 12px; margin-bottom: 6px;">Output Text:</label>
+      <textarea id="vigenereOutput" class="wide-textarea" rows="8" placeholder="Result..." readonly></textarea>
+    </section>
   </main>
 
   <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
   <script src="script.js"></script>
 </body>
