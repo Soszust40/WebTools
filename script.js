@@ -830,6 +830,12 @@ const rgbB = $('#rgbB');
 const hslH = $('#hslH');
 const hslS = $('#hslS');
 const hslL = $('#hslL');
+const rgbRValue = $('#rgbRValue');
+const rgbGValue = $('#rgbGValue');
+const rgbBValue = $('#rgbBValue');
+const hslHValue = $('#hslHValue');
+const hslSValue = $('#hslSValue');
+const hslLValue = $('#hslLValue');
 
 let isUpdating = false;
 
@@ -842,7 +848,7 @@ function updateColorInputs(color, source) {
     isUpdating = false;
     return;
   }
-    
+
   const { r, g, b, h, s, l, hex } = color;
 
   if (hex === undefined || r === undefined || h === undefined) {
@@ -860,11 +866,26 @@ function updateColorInputs(color, source) {
     rgbR.value = r;
     rgbG.value = g;
     rgbB.value = b;
+
+    // Update RGB Spans
+    rgbRValue.textContent = r;
+    rgbGValue.textContent = g;
+    rgbBValue.textContent = b;
   }
   if (source !== 'hsl') {
-    hslH.value = Math.round(h);
-    hslS.value = Math.round(s);
-    hslL.value = Math.round(l);
+    // Round HSL Values
+    const hRound = Math.round(h);
+    const sRound = Math.round(s);
+    const lRound = Math.round(l);
+
+    hslH.value = hRound;
+    hslS.value = sRound;
+    hslL.value = lRound;
+
+    // Update HSL Spans
+    hslHValue.textContent = hRound;
+    hslSValue.textContent = sRound;
+    hslLValue.textContent = lRound;
   }
 
   isUpdating = false;
@@ -906,7 +927,11 @@ if (colorPicker) {
       const r = parseInt(rgbR.value) || 0;
       const g = parseInt(rgbG.value) || 0;
       const b = parseInt(rgbB.value) || 0;
-      
+
+      rgbRValue.textContent = r;
+      rgbGValue.textContent = g;
+      rgbBValue.textContent = b;
+
       const safeR = Math.max(0, Math.min(255, r));
       const safeG = Math.max(0, Math.min(255, g));
       const safeB = Math.max(0, Math.min(255, b));
@@ -922,6 +947,11 @@ if (colorPicker) {
       const h = parseInt(hslH.value) || 0;
       const s = parseInt(hslS.value) || 0;
       const l = parseInt(hslL.value) || 0;
+
+      // Update Spans
+      hslHValue.textContent = h;
+      hslSValue.textContent = s;
+      hslLValue.textContent = l;
 
       const safeH = Math.max(0, Math.min(360, h));
       const safeS = Math.max(0, Math.min(100, s));

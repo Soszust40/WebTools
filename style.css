@@ -470,10 +470,25 @@ button[disabled]{
   font-size: 1.1rem;
 }
 
-.color-input-group input[type="number"] {
+.slider-input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.slider-input-row input[type="range"] {
   width: 100%;
-  text-align: center;
+  margin: 0;
+}
+
+.slider-input-row span {
+  font-family: monospace;
   font-size: 1rem;
+  text-align: right;
+  width: 3.5em;
+  color: var(--muted);
 }
 
 @media (max-width:1000px){
