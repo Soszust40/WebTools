@@ -1092,46 +1092,87 @@ initColorConverter();
 const citeType = $('#citeType');
 const citeFormat = $('#citeFormat');
 const citationForm = $('#citationForm');
+const citeGroups = $$('.cite-group');
 const citeGenerateBtn = $('#citeGenerateBtn');
 const citeClearBtn = $('#citeClearBtn');
+const citeCopyBtn = $('#citeCopyBtn');
 const citeOutput = $('#citeOutput');
-const citeGroups = $$('.cite-group');
 
-function updateCitationForm() {
-  const selectedType = citeType.value; // Citiation Type
-  
-  citeGroups.forEach(group => {
-    const supportedTypes = group.dataset.type.split(' ');
-    if (supportedTypes.includes(selectedType)) {
-      group.style.display = 'flex';
+function formatAuthors(authorStr, format) {
+  if (!authorStr) return '';
+
+  const authors = authorStr.split(';').map(a => a.trim()).filter(Boolean);
+
+  const formatted = authors.map(name => {
+    const parts = name.split(',');
+    const lastName = parts[0] ? parts[0].trim() : name;
+    let givenNames = parts[1] ? parts[1].trim() : '';
+
+    if (format === 'apa') {
+      // APA: "Last, F. M."
+      if (!givenNames) return lastName;
+      const initials = givenNames.split(/\s+/).map(n => n[0].toUpperCase() + '.').join(' ');
+      return `${lastName}, ${initials}`;
     } else {
-      group.style.display = 'none';
+      // MLA & Chicago: "First M. Last"
+      if (!givenNames) return lastName;
+      return `${givenNames} ${lastName}`;
     }
   });
+
+  // Multiple Authors Formatting
+  if (formatted.length === 0) return '';
+  if (formatted.length === 1) return formatted[0];
+
+  if (format === 'apa') {
+    const last = formatted.pop();
+    return formatted.join(', ') + ' & ' + last;
+  } else {
+    if (formatted.length === 2) {
+      return formatted.join(' and ');
+    }
+    if (formatted.length >= 3 && format === 'mla') {
+      return `${formatted[0]}, et al.`;
+    } else {
+      const last = formatted.pop();
+      return formatted.join(', ') + ', and ' + last;
+    }
+  }
 }
 
 function formatDate(dateStr, format) {
   if (!dateStr) return '';
-  try {
-    const [year, month, day] = dateStr.split('-').map(Number);
-    if (!year || !month || !day) throw new Error('Invalid date');
-    const d = new Date(year, month - 1, day);
-    
-    if (isNaN(d.getTime())) return dateStr; // Invalid Date
-    
-    const y = d.getFullYear();
-    const mDay = d.getDate();
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const mName = monthNames[d.getMonth()];
-    const mShort = mName.substring(0, 3);
-    
-    if (format === 'apa') return `(${y}, ${mName} ${mDay})`;
-    if (format === 'mla') return `${mDay} ${mShort}. ${y}`;
-    if (format === 'chicago') return `${mName} ${mDay}, ${y}`;
-    return dateStr;
-  } catch (e) {
-    return dateStr;
+
+  const parts = dateStr.split('-').map(Number);
+  const [year, month, day] = parts;
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  let dateOut = '';
+  if (year && month && day) dateOut = `${monthNames[month - 1]} ${day}, ${year}`;
+  else if (year && month) dateOut = `${monthNames[month - 1]} ${year}`;
+  else if (year) dateOut = `${year}`;
+  else return '';
+
+  if (format === 'apa') return `(${dateOut})`;
+  if (format === 'mla') {
+      if (day) return `${day} ${monthNames[month-1].substring(0,3)}. ${year}`;
+      return dateOut.replace(',', '');
   }
+  if (format === 'chicago') return dateOut;
+  return dateStr;
+}
+
+function updateCitationForm() {
+  if (!citeType) return;
+  const selectedType = citeType.value;
+  citeGroups.forEach(group => {
+    const supportedTypes = group.dataset.type.split(' ');
+    group.style.display = supportedTypes.includes(selectedType) ? 'flex' : 'none';
+  });
 }
 
 function generateCitation() {
@@ -1139,260 +1180,260 @@ function generateCitation() {
   const format = citeFormat.value;
   let citation = '';
 
-  // Get all possible values
-  const author = $('#citeAuthor').value.trim();
-  const articleTitle = $('#citeArticleTitle').value.trim();
-  const pubDate = $('#citePublicationDate').value.trim();
-  const year = $('#citeYear').value.trim();
-  const url = $('#citeURL').value.trim();
-  const pageRange = $('#citePageRange').value.trim();
+  const getVal = (id) => ($('#' + id) && $('#' + id).offsetParent !== null) ? $('#' + id).value.trim() : '';
+  const add = (text, punctuation = '. ') => (text ? text + punctuation : '');
+  const addSpace = (text) => (text ? ' ' + text : '');
+  
+  const rawAuthor = getVal('citeAuthor');
+  const author = formatAuthors(rawAuthor, format);
+  
+  const articleTitle = getVal('citeArticleTitle');
+  const pubDate = getVal('citePublicationDate');
+  const year = getVal('citeYear');
+  const url = getVal('citeURL');
+  const pageRange = getVal('citePageRange');
 
+  const dateStr = pubDate || year;
+  const formattedDate = formatDate(dateStr, format);
+
+  // ===== WEBSITE =====
   if (type === 'website') {
-    const siteName = $('#citeSiteName').value.trim();
-    const accessDate = $('#citeAccessDate').value.trim();
+    const siteName = getVal('citeSiteName');
+    const accessDate = getVal('citeAccessDate');
+    const formattedAccess = formatDate(accessDate, 'mla');
 
     if (format === 'apa') {
-      // APA 7: Author, A. A. (Year, Month Day). *Title of page*. Website Name. URL
-      citation += author ? `${author}. ` : '';
-      citation += pubDate ? `${formatDate(pubDate, 'apa')}. ` : '(n.d.). ';
-      citation += articleTitle ? `*${articleTitle}*. ` : '';
-      citation += siteName ? `${siteName}. ` : '';
-      citation += url ? url : '';
+      citation = `${add(author)}${add(formattedDate || '(n.d.)')}<i>${add(articleTitle)}</i>${add(siteName)}${url || ''}`;
     } 
     else if (format === 'mla') {
-      // MLA 9: Author. "Title of Page." *Website Name*, Publication Date, URL. Accessed Date.
-      citation += author ? `${author}. ` : '';
-      citation += articleTitle ? `"${articleTitle}." ` : '';
-      citation += siteName ? `*${siteName}*, ` : '';
-      citation += pubDate ? `${formatDate(pubDate, 'mla')}, ` : 'n.d., ';
-      citation += url ? `${url}.` : '';
-      citation += accessDate ? ` Accessed ${formatDate(accessDate, 'mla')}.` : '';
+      citation = `${add(author)}"${add(articleTitle, '." ')}<i>${add(siteName, ', ')}</i>${add(formattedDate, ', ')}${add(url, '.')}${accessDate ? ' Accessed ' + formattedAccess + '.' : ''}`;
     } 
     else if (format === 'chicago') {
-      // Chicago 17 (Notes-Bib): Author. "Title of Page." Website Name. Last modified/published Date. URL.
-      citation += author ? `${author}. ` : '';
-      citation += articleTitle ? `"${articleTitle}." ` : '';
-      citation += siteName ? `${siteName}. ` : '';
-      citation += pubDate ? `Published ${formatDate(pubDate, 'chicago')}. ` : '';
-      citation += url ? `${url}.` : '';
+      citation = `${add(author)}"${add(articleTitle, '." ')}${add(siteName, '. ')}${formattedDate ? 'Published ' + add(formattedDate) : ''}${url ? add(url, '.') : ''}`;
     }
-  } 
+  }
+
+  // ===== BOOK =====
   else if (type === 'book') {
-    const title = $('#citeBookTitle').value.trim();
-    const city = $('#citePubCity').value.trim();
-    const publisher = $('#citePublisher').value.trim();
-    const edition = $('#citeEdition').value.trim();
-    
-    if (format === 'apa') {
-      // APA 7: Author, A. A. (Year). *Title of book* (Edition, if not 1st). Publisher.
-      citation += author ? `${author}. ` : '';
-      citation += year ? `(${year}). ` : '(n.d.). ';
-      citation += title ? `*${title}*` : '';
-      citation += edition ? ` (${edition}).` : '.';
-      citation += publisher ? ` ${publisher}.` : '';
-      citation = citation.replace('..', '.');
-    }
-    else if (format === 'mla') {
-      // MLA 9: Author. *Title of Book*. Edition, Publisher, Year.
-      citation += author ? `${author}. ` : '';
-      citation += title ? `*${title}*. ` : '';
-      citation += edition ? `${edition}, ` : '';
-      citation += publisher ? `${publisher}, ` : '';
-      citation += year ? `${year}.` : '';
-    }
-    else if (format === 'chicago') {
-      // Chicago 17 (Notes-Bib): Author. *Title of Book*. Edition. City: Publisher, Year.
-      citation += author ? `${author}. ` : '';
-      citation += title ? `*${title}*. ` : '';
-      citation += edition ? `${edition}. ` : '';
-      citation += city ? `${city}: ` : '';
-      citation += publisher ? `${publisher}, ` : '';
-      citation += year ? `${year}.` : '';
-    }
-  }
-  else if (type === 'book-chapter') {
-    const chapterTitle = $('#citeChapterTitle').value.trim();
-    const editors = $('#citeEditors').value.trim();
-    const bookTitle = $('#citeBookTitle').value.trim();
-    const city = $('#citePubCity').value.trim();
-    const publisher = $('#citePublisher').value.trim();
+    const title = getVal('citeBookTitle');
+    const city = getVal('citePubCity');
+    const publisher = getVal('citePublisher');
+    const edition = getVal('citeEdition');
 
     if (format === 'apa') {
-      // APA 7: Author, A. A. (Year). Chapter title. In E. E. Editor (Ed.), *Book title* (pp. xx-xx). Publisher.
-      citation += author ? `${author}. ` : '';
-      citation += year ? `(${year}). ` : '(n.d.). ';
-      citation += chapterTitle ? `${chapterTitle}. ` : '';
-      citation += editors ? `In ${editors}, ` : 'In ';
-      citation += bookTitle ? `*${bookTitle}*` : '';
-      citation += pageRange ? ` (${pageRange}).` : '.';
-      citation += publisher ? ` ${publisher}.` : '';
-      citation = citation.replace('..', '.');
-    }
+      citation = `${add(author)}${add(formattedDate || '(n.d.)')}<i>${add(title)}</i>${edition ? add(edition, '. ') : ''}${add(publisher)}`;
+    } 
     else if (format === 'mla') {
-      // MLA 9: Author. "Chapter Title." *Book Title*, edited by Editor Name(s), Publisher, Year, Page Range.
-      citation += author ? `${author}. ` : '';
-      citation += chapterTitle ? `"${chapterTitle}." ` : '';
-      citation += bookTitle ? `*${bookTitle}*, ` : '';
-      citation += editors ? `edited by ${editors}, ` : '';
-      citation += publisher ? `${publisher}, ` : '';
-      citation += year ? `${year}, ` : '';
-      citation += pageRange ? `${pageRange}.` : '';
-    }
+      citation = `${add(author)}<i>${add(title, '. ')}</i>${add(edition, ', ')}${add(publisher, ', ')}${add(year)}`;
+    } 
     else if (format === 'chicago') {
-      // Chicago 17 (Notes-Bib): Author. "Chapter Title." In *Book Title*, edited by Editor Name(s), Page Range. City: Publisher, Year.
-      citation += author ? `${author}. ` : '';
-      citation += chapterTitle ? `"${chapterTitle}." ` : '';
-      citation += `In *${bookTitle}*, `;
-      citation += editors ? `edited by ${editors}, ` : '';
-      citation += pageRange ? `${pageRange}. ` : '';
-      citation += city ? `${city}: ` : '';
-      citation += publisher ? `${publisher}, ` : '';
-      citation += year ? `${year}.` : '';
+      citation = `${add(author)}<i>${add(title, '. ')}</i>${add(edition, '. ')}${add(city, ': ')}${add(publisher, ', ')}${add(year)}`;
     }
   }
+
+  // ===== JOURNAL =====
   else if (type === 'journal') {
-    const journalName = $('#citeJournalName').value.trim();
-    const volume = $('#citeVolume').value.trim();
-    const issue = $('#citeIssue').value.trim();
-    
-    if (format === 'apa') {
-      // APA 7: Author, A. A. (Year). Title of article. *Title of Periodical, Volume*(Issue), Pages. DOI
-      citation += author ? `${author}. ` : '';
-      citation += year ? `(${year}). ` : '(n.d.). ';
-      citation += articleTitle ? `${articleTitle}. ` : '';
-      citation += journalName ? `*${journalName}*, ` : '';
-      citation += volume ? `*${volume}*` : '';
-      citation += issue ? `(${issue})` : '';
-      citation += pageRange ? `, ${pageRange}.` : '.';
-      citation += url ? ` ${url}` : '';
-      citation = citation.replace('..', '.');
-    }
-    else if (format === 'mla') {
-      // MLA 9: Author. "Article Title." *Journal Name*, vol. Volume, no. Issue, Year, pp. Pages. URL.
-      citation += author ? `${author}. ` : '';
-      citation += articleTitle ? `"${articleTitle}." ` : '';
-      citation += journalName ? `*${journalName}*, ` : '';
-      citation += volume ? `vol. ${volume}, ` : '';
-      citation += issue ? `no. ${issue}, ` : '';
-      citation += year ? `${year}, ` : '';
-      citation += pageRange ? `${pageRange}.` : '.'; // MLA uses "pp." but just page range is also common, for simplicity we'll use pageRange
-      citation += url ? ` ${url}.` : '';
-    }
-    else if (format === 'chicago') {
-      // Chicago 17 (Notes-Bib): Author. "Article Title." *Journal Name* Volume, no. Issue (Year): Pages. DOI.
-      citation += author ? `${author}. ` : '';
-      citation += articleTitle ? `"${articleTitle}." ` : '';
-      citation += journalName ? `*${journalName}* ` : '';
-      citation += volume ? `${volume}, ` : '';
-      citation += issue ? `no. ${issue} ` : '';
-      citation += year ? `(${year})` : '';
-      citation += pageRange ? `: ${pageRange}.` : '.';
-      citation += url ? ` ${url}.` : '';
-    }
-  }
-  else if (type === 'magazine') {
-    const magName = $('#citeMagazineName').value.trim();
-    const volume = $('#citeVolume').value.trim();
-    const issue = $('#citeIssue').value.trim();
+    const journalName = getVal('citeJournalName');
+    const volume = getVal('citeVolume');
+    const issue = getVal('citeIssue');
 
     if (format === 'apa') {
-      // APA 7: Author, A. A. (Year, Month Day). Title of article. *Title of Periodical, Volume*(Issue), Pages.
-      citation += author ? `${author}. ` : '';
-      citation += pubDate ? `${formatDate(pubDate, 'apa')}. ` : '(n.d.). ';
-      citation += articleTitle ? `${articleTitle}. ` : '';
-      citation += magName ? `*${magName}*, ` : '';
-      citation += volume ? `*${volume}*` : '';
-      citation += issue ? `(${issue})` : '';
-      citation += pageRange ? `, ${pageRange}.` : '.';
-    }
+      const vol = add(volume);
+      const iss = issue ? `(${issue})` : '';
+      const pages = pageRange ? `, ${pageRange}` : '';
+      citation = `${add(author)}${add(formattedDate || '(n.d.)')}${add(articleTitle)}<i>${journalName}</i>${vol ? `, <i>${vol}</i>` : ''}${iss}${pages}.${addSpace(url)}`;
+    } 
     else if (format === 'mla') {
-      // MLA 9: Author. "Article Title." *Magazine Name*, vol. Volume, no. Issue, Date, pp. Pages.
-      citation += author ? `${author}. ` : '';
-      citation += articleTitle ? `"${articleTitle}." ` : '';
-      citation += magName ? `*${magName}*, ` : '';
-      citation += volume ? `vol. ${volume}, ` : '';
-      citation += issue ? `no. ${issue}, ` : '';
-      citation += pubDate ? `${formatDate(pubDate, 'mla')}, ` : '';
-      citation += pageRange ? `${pageRange}.` : '';
-    }
+      const vol = volume ? `vol. ${volume}, ` : '';
+      const iss = issue ? `no. ${issue}, ` : '';
+      const pages = pageRange ? `pp. ${pageRange}` : '';
+      citation = `${add(author)}"${add(articleTitle, '." ')}<i>${add(journalName, ', ')}</i>${vol}${iss}${add(formattedDate, ', ')}${add(pages, '.')}${addSpace(url)}`;
+    } 
     else if (format === 'chicago') {
-      // Chicago 17 (Notes-Bib): Author. "Article Title." *Magazine Name*, Month Day, Year.
-      citation += author ? `${author}. ` : '';
-      citation += articleTitle ? `"${articleTitle}." ` : '';
-      citation += magName ? `*${magName}*, ` : '';
-      citation += pubDate ? `${formatDate(pubDate, 'chicago')}.` : '';
-    }
-  }
-  else if (type === 'newspaper') {
-    const newspaperName = $('#citeNewspaperName').value.trim();
-    const section = $('#citeSection').value.trim();
-
-    if (format === 'apa') {
-      // APA 7: Author, A. A. (Year, Month Day). Title of article. *Title of Newspaper*, Pages.
-      citation += author ? `${author}. ` : '';
-      citation += pubDate ? `${formatDate(pubDate, 'apa')}. ` : '(n.d.). ';
-      citation += articleTitle ? `${articleTitle}. ` : '';
-      citation += newspaperName ? `*${newspaperName}*` : '';
-      citation += (pageRange || section) ? `, ${section}${pageRange}.` : '.';
-    }
-    else if (format === 'mla') {
-      // MLA 9: Author. "Article Title." *Newspaper Name*, Date, Pages.
-      citation += author ? `${author}. ` : '';
-      citation += articleTitle ? `"${articleTitle}." ` : '';
-      citation += newspaperName ? `*${newspaperName}*, ` : '';
-      citation += pubDate ? `${formatDate(pubDate, 'mla')}, ` : '';
-      citation += pageRange ? `${pageRange}.` : ''; // Often includes section, e.g., B1-B4
-    }
-    else if (format === 'chicago') {
-      // Chicago 17 (Notes-Bib): Author. "Article Title." *Newspaper Name*, Month Day, Year.
-      citation += author ? `${author}. ` : '';
-      citation += articleTitle ? `"${articleTitle}." ` : '';
-      citation += newspaperName ? `*${newspaperName}*, ` : '';
-      citation += pubDate ? `${formatDate(pubDate, 'chicago')}.` : '';
-    }
-  }
-  else if (type === 'film') {
-    const filmTitle = $('#citeFilmTitle').value.trim();
-    const director = $('#citeDirector').value.trim();
-    const studio = $('#citeStudio').value.trim();
-
-    if (format === 'apa') {
-      // APA 7: Director, D. D. (Director). (Year). *Title of motion picture* [Film]. Studio.
-      citation += director ? `${director} (Director). ` : '';
-      citation += year ? `(${year}). ` : '(n.d.). ';
-      citation += filmTitle ? `*${filmTitle}* ` : '';
-      citation += '[Film]. ';
-      citation += studio ? `${studio}.` : '';
-    }
-    else if (format === 'mla') {
-      // MLA 9: *Title of Film*. Directed by Director, Studio, Year.
-      citation += filmTitle ? `*${filmTitle}*. ` : '';
-      citation += director ? `Directed by ${director}, ` : '';
-      citation += studio ? `${studio}, ` : '';
-      citation += year ? `${year}.` : '';
-    }
-    else if (format === 'chicago') {
-      // Chicago 17 (Notes-Bib): *Film Title*. Directed by Director. Studio, Year.
-      citation += filmTitle ? `*${filmTitle}*. ` : '';
-      citation += director ? `Directed by ${director}. ` : '';
-      citation += studio ? `${studio}, ` : '';
-      citation += year ? `${year}.` : '';
+      const vol = add(volume);
+      const iss = issue ? `, no. ${issue} ` : ' ';
+      const pages = pageRange ? `: ${pageRange}` : '';
+      citation = `${add(author)}"${add(articleTitle, '." ')}<i>${add(journalName)}</i>${vol ? ' ' + vol : ''}${iss}${formattedDate || ''}${pages}.${addSpace(url)}`;
     }
   }
   
-  // Format Output
-  citeOutput.value = citation.replace(/\s+/g, ' ').replace(/\. \./g, '.').replace(/, \./g, '.').replace(/ \./g, '.').replace(/,,/g, ',').replace(/:,/g, ':').replace(/\s\./g, '.').trim();
+  // ===== BOOK CHAPTER =====
+    else if (type === 'book-chapter') {
+        const chapterTitle = getVal('citeChapterTitle');
+        const bookTitle = getVal('citeBookTitle');
+        const rawEditors = getVal('citeEditors');
+        const editors = formatAuthors(rawEditors, format);
+        const publisher = getVal('citePublisher');
+        const city = getVal('citePubCity');
+        
+        // APA: Author. (Year). Chapter Title. In E. E. Editor (Ed.), *Book Title* (pp. xx-xx). Publisher.
+        if (format === 'apa') {
+            const editorFormatted = editors ? `In ${editors} (Ed${rawEditors.includes(';') ? 's' : ''}.), ` : '';
+            const pages = pageRange ? ` (pp. ${pageRange})` : '';
+            citation = `${add(author)}${add(formattedDate || '(n.d.)')}${add(chapterTitle)} ${editorFormatted}<i>${add(bookTitle, `${pages}.`)}</i> ${add(publisher)}`;
+        }
+        // MLA: Author. "Chapter Title." *Book Title*, edited by Editor Name(s), Publisher, Year, pp. xx-xx.
+        else if (format === 'mla') {
+            const editorFormatted = editors ? `edited by ${editors}, ` : '';
+            const pages = pageRange ? `, pp. ${pageRange}` : '';
+            citation = `${add(author)}"${add(chapterTitle, '." ')}<i>${add(bookTitle, ', ')}</i>${editorFormatted}${add(publisher, ', ')}${add(year, pages + '.')}`;
+        }
+        // Chicago: Author. "Chapter Title." In *Book Title*, edited by Editor Name(s), page range. City: Publisher, Year.
+        else if (format === 'chicago') {
+            const editorFormatted = editors ? `, edited by ${editors}` : '';
+            const pages = pageRange ? `, ${pageRange}` : '';
+            citation = `${add(author)}"${add(chapterTitle, '." ')}In <i>${bookTitle}</i>${editorFormatted}${add(pages, '. ')}${add(city, ': ')}${add(publisher, ', ')}${add(year)}`;
+        }
+    }
+
+    // ===== MAGAZINE =====
+    else if (type === 'magazine') {
+        const magName = getVal('citeMagazineName');
+        const volume = getVal('citeVolume');
+        const issue = getVal('citeIssue');
+
+        // APA: Author. (Date). Article Title. *Magazine Name, Volume*(Issue), pp-pp.
+        if (format === 'apa') {
+            const vol = volume ? `, <i>${volume}</i>` : '';
+            const iss = issue ? `(${issue})` : '';
+            const pages = pageRange ? `, ${pageRange}` : '';
+            citation = `${add(author)}${add(formattedDate || '(n.d.)')}${add(articleTitle)}<i>${magName}</i>${vol}${iss}${pages}.`;
+        }
+        // MLA: Author. "Article Title." *Magazine Name*, vol. #, no. #, Date, pp. xx-xx.
+        else if (format === 'mla') {
+            const vol = volume ? `vol. ${volume}, ` : '';
+            const iss = issue ? `no. ${issue}, ` : '';
+            const pages = pageRange ? `, pp. ${pageRange}` : '';
+            citation = `${add(author)}"${add(articleTitle, '." ')}<i>${add(magName, ', ')}</i>${vol}${iss}${add(formattedDate, ', ')}${add(pages, '.')}`;
+        }
+        // Chicago: Author. "Article Title." *Magazine Name*, Date.
+        else if (format === 'chicago') {
+            citation = `${add(author)}"${add(articleTitle, '." ')}<i>${add(magName, ', ')}</i>${add(formattedDate, '.')}`;
+        }
+    }
+
+    // ===== NEWSPAPER =====
+    else if (type === 'newspaper') {
+        const newsName = getVal('citeNewspaperName');
+        const section = getVal('citeSection');
+
+        // APA: Author. (Date). Article Title. *Newspaper Name*, pp. A1-A2.
+        if (format === 'apa') {
+            const pages = pageRange ? `, p${pageRange.includes('-') ? 'p' : ''}. ${pageRange}` : '';
+            citation = `${add(author)}${add(formattedDate || '(n.d.)')}${add(articleTitle)}<i>${newsName}</i>${pages}.`;
+        }
+        // MLA: Author. "Article Title." *Newspaper Name*, Date, pp. xx-xx.
+        else if (format === 'mla') {
+            const pages = pageRange ? `, p${pageRange.includes('-') ? 'p' : ''}. ${pageRange}` : '';
+            citation = `${add(author)}"${add(articleTitle, '." ')}<i>${add(newsName, ', ')}</i>${add(formattedDate, '')}${pages}.`;
+        }
+        // Chicago: Author. "Article Title." *Newspaper Name*, Date.
+        else if (format === 'chicago') {
+             citation = `${add(author)}"${add(articleTitle, '." ')}<i>${add(newsName, ', ')}</i>${add(formattedDate, '.')}`;
+        }
+    }
+    
+    // ===== FILM / VIDEO =====
+    else if (type === 'film') {
+        const rawDirector = getVal('citeDirector'); 
+        const director = formatAuthors(rawDirector, format);
+        const filmTitle = getVal('citeFilmTitle');
+        const studio = getVal('citeStudio');
+
+        // APA: Director, A. A. (Director). (Year). *Film Title* [Film]. Studio.
+        if (format === 'apa') {
+             const dir = director ? `${director} (Director). ` : '';
+             citation = `${dir}${add(formattedDate || '(n.d.)')}<i>${add(filmTitle, '.')}</i> [Film]. ${add(studio)}`;
+        }
+        // MLA: *Film Title*. Directed by First M. Last, Studio, Year.
+        else if (format === 'mla') {
+            const dir = director ? `Directed by ${director}, ` : '';
+            citation = `<i>${add(filmTitle, '. ')}</i>${dir}${add(studio, ', ')}${add(year, '.')}`;
+        }
+        // Chicago: *Film Title*. Directed by First M. Last. Studio, Year.
+        else if (format === 'chicago') {
+            const dir = director ? `Directed by ${director}. ` : '';
+            citation = `<i>${add(filmTitle, '. ')}</i>${dir}${add(studio, ', ')}${add(year, '.')}`;
+        }
+    }
+
+  // Format and Cleanup
+  if (citation) {
+    citation = citation
+      .replace(/\s+/g, ' ')       // Remove duplicate spaces
+      .replace(/\s+([.,;:])/g, '$1') // Remove space before punctuation
+      .replace(/\.\./g, '.')       // Remove duplicate periods
+      .replace(/, \./g, '.')      // Remove comma before period
+      .replace(/: \./g, '.')      // Remove colon before period
+      .replace(/" \./g, '."')     // Fix space before quote period
+      .trim();
+      
+    citeOutput.innerHTML = citation;
+    citeCopyBtn.style.display = 'inline-block';
+    citeCopyBtn.textContent = 'Copy';
+  } else {
+    citeOutput.innerHTML = '⚠️ Please fill in the required fields to generate a citation.';
+    citeCopyBtn.style.display = 'none';
+  }
+}
+
+function clearCitationForm() {
+  if (citationForm) {
+    const inputs = citationForm.querySelectorAll('input[type="text"]');
+    inputs.forEach(input => input.value = '');
+  }
+  citeOutput.innerHTML = 'Your citation will appear here...';
+  citeCopyBtn.style.display = 'none';
+}
+
+function copyCitation() {
+  if (!citeOutput) return;
+
+  const tempDiv = document.createElement('div');
+  
+  tempDiv.innerHTML = citeOutput.innerHTML;
+  
+  tempDiv.style.color = '#000000';
+  tempDiv.style.backgroundColor = '#FFFFFF';
+  
+  tempDiv.style.position = 'absolute';
+  tempDiv.style.left = '-9999px';
+  tempDiv.style.top = '0px';
+  
+  document.body.appendChild(tempDiv);
+  
+  const range = document.createRange();
+  range.selectNode(tempDiv);
+  const selection = window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+
+  try {
+    const successful = document.execCommand('copy');
+    if (successful) {
+      citeCopyBtn.textContent = 'Copied!';
+    } else {
+      citeCopyBtn.textContent = 'Error';
+    }
+  } catch (err) {
+    console.error('Failed to copy rich text: ', err);
+    citeCopyBtn.textContent = 'Error';
+  }
+
+  selection.removeAllRanges();
+  document.body.removeChild(tempDiv);
 }
 
 if (citeType) {
   citeType.addEventListener('change', updateCitationForm);
+  citeFormat.addEventListener('change', generateCitation);
+
   citeGenerateBtn.addEventListener('click', generateCitation);
-  citeClearBtn.addEventListener('click', () => {
-    citationForm.querySelectorAll('input').forEach(input => input.value = '');
-    citeOutput.value = '';
-  });
-  
+  citeClearBtn.addEventListener('click', clearCitationForm);
+  citeCopyBtn.addEventListener('click', copyCitation);
+
   updateCitationForm();
+  citeOutput.innerHTML = 'Your citation will appear here...';
 }
 
 // Diff Tool Functions

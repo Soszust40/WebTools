@@ -546,6 +546,25 @@ button[disabled]{
   width: 100%;
 }
 
+.citation-output {
+  width: 100%;
+  min-height: 120px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.citation-output i {
+  font-style: italic;
+}
+
 .diff-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;

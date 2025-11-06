@@ -168,9 +168,9 @@
       </div>
 
       <div class="citation-form-grid" id="citationForm">
-        <div class="cite-group" data-type="book website book-chapter journal magazine newspaper">
-          <label>Author (Last, First M.):</label>
-          <input type="text" id="citeAuthor" placeholder="Last, First M."/>
+        <div class="cite-group" data-type="book website book-chapter journal magazine newspaper film">
+          <label>Author(s) / Director:</label>
+          <input type="text" id="citeAuthor" placeholder="Last, First M.; Last, First M."/>
         </div>
         <div class="cite-group" data-type="website journal magazine newspaper">
           <label>Article/Page Title:</label>
@@ -270,10 +270,11 @@
       <div class="controls-row" style="margin-top: 16px;">
         <button id="citeGenerateBtn">Generate</button>
         <button id="citeClearBtn">Clear</button>
+        <button id="citeCopyBtn" style="display: none;">Copy</button>
       </div>
 
       <label for="citeOutput" style="display: block; margin-top: 12px; margin-bottom: 6px;">Result:</label>
-      <textarea id="citeOutput" class="wide-textarea" rows="5" placeholder="Your citation will appear here..." readonly></textarea>
+      <div id="citeOutput" class="citation-output" aria-live="polite">Your citation will appear here...</div>
     </section>
 
     <section id="qr-generator" class="tool card">
