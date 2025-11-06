@@ -331,17 +331,40 @@ const qrCanvas = $('#qrCanvas');
 const saveQR = $('#saveQR');
 const qrSize = $('#qrSize');
 
-generateQR.addEventListener('click', async ()=>{
+generateQR.addEventListener('click', async () => {
   const txt = qrText.value.trim();
-  if(!txt) return alert('Enter text or URL for QR code.');
+  if (!txt) return alert('Enter text or URL for QR code.');
+  
   const size = Number(qrSize.value) || 200;
-  qrCanvas.width = size; qrCanvas.height = size;
-  await QRCode.toCanvas(qrCanvas, txt, {width:size});
-  saveQR.style.display='inline-block';
+  const bgColor = $('#qrBgColor').value;
+  const fgColor = $('#qrFgColor').value;
+
+  qrCanvas.width = size;
+  qrCanvas.height = size;
+  
+  const options = {
+    width: size,
+    color: {
+      dark: fgColor,  // Foreground Color
+      light: bgColor // Background Color
+    }
+  };
+
+  try {
+    await QRCode.toCanvas(qrCanvas, txt, options);
+    saveQR.style.display = 'inline-block';
+  } catch (err) {
+    console.error('Failed to generate QR code:', err);
+    alert('Failed to generate QR code. Please check your inputs.');
+  }
 });
-saveQR.addEventListener('click', ()=>{
+
+saveQR.addEventListener('click', () => {
   const url = qrCanvas.toDataURL('image/png');
-  const a = document.createElement('a'); a.href = url; a.download = 'qr-code.png'; a.click();
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'qr-code.png';
+  a.click();
 });
 
 /* Word Counter */
@@ -1046,3 +1069,194 @@ function initColorConverter() {
 }
 
 initColorConverter();
+
+// Citation Maker Functions
+const citeType = $('#citeType');
+const citeFormat = $('#citeFormat');
+const citationForm = $('#citationForm');
+const citeGenerateBtn = $('#citeGenerateBtn');
+const citeClearBtn = $('#citeClearBtn');
+const citeOutput = $('#citeOutput');
+const citeGroups = $$('.cite-group');
+
+function updateCitationForm() {
+  const selectedType = citeType.value; // Citiation Type
+  
+  citeGroups.forEach(group => {
+    const supportedTypes = group.dataset.type.split(' ');
+    if (supportedTypes.includes(selectedType)) {
+      group.style.display = 'flex';
+    } else {
+      group.style.display = 'none';
+    }
+  });
+}
+
+function generateCitation() {
+  const type = citeType.value;
+  const format = citeFormat.value;
+  let citation = '';
+
+  function formatDate(dateStr, format) {
+    if (!dateStr) return '';
+    try {
+      const d = new Date(dateStr + 'T00:00:00'); 
+      if (isNaN(d.getTime())) return dateStr;
+      
+      const year = d.getUTCFullYear();
+      const day = d.getUTCDate();
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const month = monthNames[d.getUTCMonth()];
+      const monthShort = month.substring(0, 3);
+      
+      if (format === 'apa') return `(${year}, ${month} ${day})`;
+      if (format === 'mla') return `${day} ${monthShort}. ${year}`;
+      if (format === 'chicago') return `${month} ${day}, ${year}`;
+      return dateStr;
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  const author = $('#citeAuthor').value.trim();
+
+  if (type === 'website') {
+    const pubDate = $('#citeWebDate').value.trim();
+    const title = $('#citeWebTitle').value.trim();
+    const siteName = $('#citeSiteName').value.trim();
+    const url = $('#citeURL').value.trim();
+    const accessDate = $('#citeAccessDate').value.trim();
+
+    if (format === 'apa') {
+      // APA 7: Author, A. A. (Year, Month Day). *Title of page*. Website Name. URL
+      citation += author ? `${author}. ` : '';
+      citation += pubDate ? `${formatDate(pubDate, 'apa')}. ` : '(n.d.). ';
+      citation += title ? `*${title}*. ` : '';
+      citation += siteName ? `${siteName}. ` : '';
+      citation += url ? url : '';
+    } 
+    else if (format === 'mla') {
+      // MLA 9: Author. "Title of Page." *Website Name*, Publication Date, URL. Accessed Date.
+      citation += author ? `${author}. ` : '';
+      citation += title ? `"${title}." ` : '';
+      citation += siteName ? `*${siteName}*, ` : '';
+      citation += pubDate ? `${formatDate(pubDate, 'mla')}, ` : 'n.d., ';
+      citation += url ? `${url}.` : '';
+      citation += accessDate ? ` Accessed ${formatDate(accessDate, 'mla')}.` : '';
+    } 
+    else if (format === 'chicago') {
+      // Chicago 17 (Notes-Bib): Author. "Title of Page." Website Name. Last modified/published Date. URL.
+      citation += author ? `${author}. ` : '';
+      citation += title ? `"${title}." ` : '';
+      citation += siteName ? `${siteName}. ` : '';
+      citation += pubDate ? `Published ${formatDate(pubDate, 'chicago')}. ` : '';
+      citation += url ? `${url}.` : '';
+    }
+  } 
+  else if (type === 'book') {
+    const year = $('#citeBookYear').value.trim();
+    const title = $('#citeBookTitle').value.trim();
+    const city = $('#citePubCity').value.trim();
+    const publisher = $('#citePublisher').value.trim();
+    
+    if (format === 'apa') {
+      // APA 7: Author, A. A. (Year). *Title of book*. Publisher.
+      citation += author ? `${author}. ` : '';
+      citation += year ? `(${year}). ` : '(n.d.). ';
+      citation += title ? `*${title}*. ` : '';
+      citation += publisher ? `${publisher}.` : '';
+    }
+    else if (format === 'mla') {
+      // MLA 9: Author. *Title of Book*. Publisher, Year.
+      citation += author ? `${author}. ` : '';
+      citation += title ? `*${title}*. ` : '';
+      citation += publisher ? `${publisher}, ` : '';
+      citation += year ? `${year}.` : '';
+    }
+    else if (format === 'chicago') {
+      // Chicago 17 (Notes-Bib): Author. *Title of Book*. City: Publisher, Year.
+      citation += author ? `${author}. ` : '';
+      citation += title ? `*${title}*. ` : '';
+      citation += city ? `${city}: ` : '';
+      citation += publisher ? `${publisher}, ` : '';
+      citation += year ? `${year}.` : '';
+    }
+  }
+  
+  citeOutput.value = citation.replace(/\s+/g, ' ').replace(/\. \./g, '.').replace(/, \./g, '.').replace(/ \./g, '.').trim();
+}
+
+if (citeType) {
+  citeType.addEventListener('change', updateCitationForm);
+  citeGenerateBtn.addEventListener('click', generateCitation);
+  citeClearBtn.addEventListener('click', () => {
+    citationForm.querySelectorAll('input').forEach(input => input.value = '');
+    citeOutput.value = '';
+  });
+  
+  updateCitationForm();
+}
+
+// Diff Tool Functions
+const diffOld = $('#diffOld');
+const diffNew = $('#diffNew');
+const diffCompareBtn = $('#diffCompareBtn');
+const diffType = $('#diffType');
+const diffOutput = $('#diffOutput');
+
+if (diffCompareBtn) {
+  diffCompareBtn.addEventListener('click', () => {
+    const oldText = diffOld.value;
+    const newText = diffNew.value;
+    const type = diffType.value;
+
+    let diff;
+    switch (type) {
+      case 'words':
+        diff = Diff.diffWords(oldText, newText);
+        break;
+      case 'chars':
+        diff = Diff.diffChars(oldText, newText);
+        break;
+      case 'lines':
+      default:
+        diff = Diff.diffLines(oldText, newText);
+        break;
+    }
+
+    const fragment = document.createDocumentFragment();
+    let hasChanges = false;
+    
+    diff.forEach(part => {
+      const span = document.createElement('span');
+      let cssClass = '';
+      
+      if (part.added) {
+        cssClass = 'diff-added';
+        hasChanges = true;
+      } else if (part.removed) {
+        cssClass = 'diff-removed';
+        hasChanges = true;
+      } else {
+        cssClass = 'diff-common';
+      }
+      
+      span.className = cssClass;
+      span.textContent = part.value;
+      fragment.appendChild(span);
+    });
+
+    diffOutput.innerHTML = '';
+    
+    if (!oldText && !newText) {
+      diffOutput.textContent = "Click 'Compare' to see results...";
+    } else if (!hasChanges) {
+      const span = document.createElement('span');
+      span.className = 'diff-common';
+      span.textContent = 'Texts are identical.';
+      diffOutput.appendChild(span);
+    } else {
+      diffOutput.appendChild(fragment);
+    }
+  });
+}

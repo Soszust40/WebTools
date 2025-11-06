@@ -18,16 +18,18 @@
   <aside class="sidebar" id="sidebar">
     <div class="brand">
       <h2>WebTools</h2>
-      <h5>🛠️ Simon Oszust</h5>
+      <h5>🛠️ <a href="https://github.com/Soszust40" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">Simon Oszust</a></h5>
     </div>
     <nav>
       <ul>
         <li class="active" data-tool="image-converter">🖼️ Image Converter</li>
         <li data-tool="pdf-tools">📄 PDF Tools</li>
         <li data-tool="word-counter">📝 Word Counter</li>
+        <li data-tool="citation-maker">📚 Citation Maker</li>
         <li data-tool="qr-generator">🔲 QR Generator</li>
         <li data-tool="list-sorter">🔤 List Sorter</li>
         <li data-tool="color-converter">🎨 Color Converter</li>
+        <li data-tool="diff-checker">🔄 Text/Code Diff</li>
         <li data-tool="vigenere-cipher">🔒 Vigenère Cipher</li>
       </ul>
     </nav>
@@ -142,6 +144,83 @@
       </div>
     </section>
 
+    <!-- CITATION MAKER -->
+    <section id="citation-maker" class="tool card">
+      <h2>📚 Citation Maker</h2>
+      <p>Enter source information to generate a citation in APA, MLA, or Chicago format.</p>
+      
+      <div class="controls-row">
+        <label>Source Type:
+          <select id="citeType">
+            <option value="website">Website</option>
+            <option value="book">Book</option>
+          </select>
+        </label>
+        <label>Format:
+          <select id="citeFormat">
+            <option value="apa">APA 7</option>
+            <option value="mla">MLA 9</option>
+            <option value="chicago">Chicago 17</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="citation-form-grid" id="citationForm">
+        
+        <div class="cite-group" data-type="book website">
+          <label>Author (Last, First M.):</label>
+          <input type="text" id="citeAuthor" placeholder="e.g., Doe, John A.">
+        </div>
+        
+        <div class="cite-group" data-type="website">
+          <label>Page/Article Title:</label>
+          <input type="text" id="citeWebTitle" placeholder="e.g., How to Code">
+        </div>
+        <div class="cite-group" data-type="website">
+          <label>Website Name:</label>
+          <input type="text" id="citeSiteName" placeholder="e.g., WebTools Project">
+        </div>
+        <div class="cite-group" data-type="website">
+          <label>URL:</label>
+          <input type="text" id="citeURL" placeholder="https://...">
+        </div>
+        <div class="cite-group" data-type="website">
+          <label>Publication Date (YYYY-MM-DD):</label>
+          <input type="text" id="citeWebDate" placeholder="e.g., 2023-10-28">
+        </div>
+        <div class="cite-group" data-type="website">
+          <label>Access Date (YYYY-MM-DD):</label>
+          <input type="text" id="citeAccessDate" placeholder="(Optional, for MLA)">
+        </div>
+
+        <div class="cite-group" data-type="book">
+          <label>Book Title:</label>
+          <input type="text" id="citeBookTitle" placeholder="e.g., The Art of Coding">
+        </div>
+        <div class="cite-group" data-type="book">
+          <label>Publisher:</label>
+          <input type="text" id="citePublisher" placeholder="e.g., Tech Press">
+        </div>
+        <div class="cite-group" data-type="book">
+          <label>Publication City:</label>
+          <input type="text" id="citePubCity" placeholder="e.g., New York">
+        </div>
+        <div class="cite-group" data-type="book">
+          <label>Publication Year:</label>
+          <input type="text" id="citeBookYear" placeholder="e.g., 2023">
+        </div>
+
+      </div>
+
+      <div class="controls-row" style="margin-top: 16px;">
+        <button id="citeGenerateBtn">Generate</button>
+        <button id="citeClearBtn">Clear</button>
+      </div>
+
+      <label for="citeOutput" style="display: block; margin-top: 12px; margin-bottom: 6px;">Result:</label>
+      <textarea id="citeOutput" class="wide-textarea" rows="5" placeholder="Your citation will appear here..." readonly></textarea>
+    </section>
+
     <!-- QR GENERATOR -->
     <section id="qr-generator" class="tool card">
       <h2>🔲 QR Generator</h2>
@@ -156,6 +235,12 @@
             <option value="300">300</option>
             <option value="400">400</option>
           </select>
+        </label>
+        <label>Background Color:
+          <input type="color" id="qrBgColor" value="#FFFFFF" style="width: 36px; height: 24px; padding: 0; border: none; background: none;">
+        </label>
+        <label>QR Color:
+          <input type="color" id="qrFgColor" value="#000000" style="width: 36px; height: 24px; padding: 0; border: none; background: none;">
         </label>
         <button id="generateQR">Generate</button>
         <button id="saveQR" style="display:none">Save as PNG</button>
@@ -237,6 +322,39 @@
       </div>
     </section>
 
+    <!-- DIFF CHECKER -->
+    <section id="diff-checker" class="tool card">
+      <h2>🔄 Text/Code Diff</h2>
+      <p>Compare two blocks of text or code to see the differences highlighted.</p>
+      
+      <div class="diff-layout">
+        <div class="diff-pane">
+          <label for="diffOld">Old Text:</label>
+          <textarea id="diffOld" class="diff-textarea" aria-label="Old text input"></textarea>
+        </div>
+        <div class="diff-pane">
+          <label for="diffNew">New Text:</label>
+          <textarea id="diffNew" class="diff-textarea" aria-label="New text input"></textarea>
+        </div>
+      </div>
+      
+      <div class="controls-row" style="margin-top: 12px;">
+        <label>Diff Type:
+          <select id="diffType">
+            <option value="lines">Lines</option>
+            <option value="words">Words</option>
+            <option value="chars">Characters</option>
+          </select>
+        </label>
+        <button id="diffCompareBtn">Compare</button>
+      </div>
+
+      <label for="diffOutput" style="display: block; margin-top: 12px; margin-bottom: 6px;">Differences:</label>
+      <div id="diffOutputWrapper" class="diff-output">
+        <pre id="diffOutput" aria-live="polite">Click 'Compare' to see results...</pre>
+      </div>
+    </section>
+
     <!-- VIGENERE CIPHER -->
     <section id="vigenere-cipher" class="tool card">
       <h2>🔒 Vigenère Cipher</h2>
@@ -275,6 +393,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
 
   <script src="script.js"></script>
 </body>
