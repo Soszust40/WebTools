@@ -1442,25 +1442,40 @@ const diffNew = $('#diffNew');
 const diffCompareBtn = $('#diffCompareBtn');
 const diffType = $('#diffType');
 const diffOutput = $('#diffOutput');
+const diffIgnoreWhitespace = $('#diffIgnoreWhitespace');
 
 if (diffCompareBtn) {
   diffCompareBtn.addEventListener('click', () => {
     const oldText = diffOld.value;
     const newText = diffNew.value;
+    
     const type = diffType.value;
+    const ignoreWhitespace = diffIgnoreWhitespace.checked;
+    
     diffOutput.innerHTML = '';
+
+    const options = {
+      ignoreWhitespace: ignoreWhitespace
+    };
 
     let diff;
     switch (type) {
       case 'words':
-        diff = Diff.diffWords(oldText, newText);
+        diff = Diff.diffWords(oldText, newText, options);
         break;
       case 'chars':
-        diff = Diff.diffChars(oldText, newText);
+        let oldTextChars = oldText;
+        let newTextChars = newText;
+        if (ignoreWhitespace) {
+          // Remove all whitespace characters
+          oldTextChars = oldText.replace(/\s+/g, '');
+          newTextChars = newText.replace(/\s+/g, '');
+        }
+        diff = Diff.diffChars(oldTextChars, newTextChars);
         break;
       case 'lines':
       default:
-        diff = Diff.diffLines(oldText, newText);
+        diff = Diff.diffLines(oldText, newText, options);
         break;
     }
 
