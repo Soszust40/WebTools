@@ -679,4 +679,10 @@ body.dark .diff-output .diff-removed {
   }
 }
 
+@media (min-width: 1000px) {
+  .sidebar {
+    transform: none !important;
+  }
+}
+
 .muted{color:var(--muted);margin-top:8px}
