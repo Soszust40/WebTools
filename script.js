@@ -71,6 +71,7 @@ const qualityValue = $('#qualityValue');
 const qualityLabel = $('#qualityLabel');
 const resizeHeightInput = $('#resizeHeight');
 const invertColorsCheck = $('#invertColors');
+const grayscaleColorsCheck = $('#grayscaleColors');
 const imageSettingsBtn = $('#imageSettingsBtn');
 const imageSettingsPopup = $('#imageSettingsPopup');
 
@@ -212,8 +213,8 @@ function buildIcnsFromPng(pngBytes){
 
 /* Convert File to Format */
 function convertFileToFormat(file, opts={}){
-  // Updated options
-  const {targetFormat='png', width=null, height=null, quality=0.92, invert=false} = opts;
+  // Updated options with grayscale
+  const {targetFormat='png', width=null, height=null, quality=0.92, invert=false, grayscale=false} = opts;
   return new Promise((resolve, reject)=>{
     const reader = new FileReader();
     reader.onload = () => {
@@ -240,9 +241,17 @@ function convertFileToFormat(file, opts={}){
         canvas.height = h;
         const ctx = canvas.getContext('2d');
         
-        // Apply invert filter if checked
+        // Build a filter string to combine multiple filters
+        let filterString = '';
         if (invert) {
-            ctx.filter = 'invert(1)';
+            filterString += 'invert(1) ';
+        }
+        if (grayscale) {
+            filterString += 'grayscale(1) ';
+        }
+        
+        if (filterString) {
+            ctx.filter = filterString.trim();
         }
         
         ctx.drawImage(img, 0, 0, w, h);
@@ -280,11 +289,12 @@ async function convertAndDownload(files){
   const width = resizeWidthInput.value ? Number(resizeWidthInput.value) : null;
   const height = resizeHeightInput.value ? Number(resizeHeightInput.value) : null;
   const invert = invertColorsCheck.checked;
+  const grayscale = grayscaleColorsCheck.checked;
   const quality = Number(qualitySlider.value) || 0.92;
   
   if(files.length === 0) return alert('No files selected');
 
-  const options = {targetFormat: fmt, width, height, invert, quality};
+  const options = {targetFormat: fmt, width, height, invert, grayscale, quality};
 
   if(files.length === 1){
     const res = await convertFileToFormat(files[0], options);
