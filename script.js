@@ -211,69 +211,47 @@ function buildIcnsFromPng(pngBytes){
   return out.buffer;
 }
 
-/* Convert File to Format */
-function convertFileToFormat(file, opts={}){
-  // Updated options with grayscale
-  const {targetFormat='png', width=null, height=null, quality=0.92, invert=false, grayscale=false} = opts;
-  return new Promise((resolve, reject)=>{
+function processImageToCanvas(file, opts = {}) {
+  const { width = null, height = null, invert = false, grayscale = false } = opts;
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
       const img = new Image();
       img.onload = () => {
-        // Updated sizing logic
         let w = img.width;
         let h = img.height;
         if (width && height) {
-            w = Number(width);
-            h = Number(height);
+          w = Number(width);
+          h = Number(height);
         } else if (width) {
-            w = Number(width);
-            const scale = w / img.width;
-            h = Math.round(img.height * scale);
+          w = Number(width);
+          const scale = w / img.width;
+          h = Math.round(img.height * scale);
         } else if (height) {
-            h = Number(height);
-            const scale = h / img.height;
-            w = Math.round(img.width * scale);
+          h = Number(height);
+          const scale = h / img.height;
+          w = Math.round(img.width * scale);
         }
-        
+
         const canvas = document.createElement('canvas');
         canvas.width = w;
         canvas.height = h;
         const ctx = canvas.getContext('2d');
-        
-        // Build a filter string to combine multiple filters
+
         let filterString = '';
         if (invert) {
-            filterString += 'invert(1) ';
+          filterString += 'invert(1) ';
         }
         if (grayscale) {
-            filterString += 'grayscale(1) ';
+          filterString += 'grayscale(1) ';
         }
-        
-        if (filterString) {
-            ctx.filter = filterString.trim();
-        }
-        
-        ctx.drawImage(img, 0, 0, w, h);
 
-        if(targetFormat === 'ico'){
-          const pngDataUrl = canvas.toDataURL('image/png');
-          const pngBytes = dataURLToUint8Array(pngDataUrl);
-          const ico = buildIcoFromPng(pngBytes);
-          resolve({name: file.name.replace(/\.[^.]+$/, '') + '.ico', blob: new Blob([ico], {type:'image/x-icon'})});
-          return;
-        } else if(targetFormat === 'icns'){
-          const pngDataUrl = canvas.toDataURL('image/png');
-          const pngBytes = dataURLToUint8Array(pngDataUrl);
-          const icns = buildIcnsFromPng(pngBytes);
-          resolve({name: file.name.replace(/\.[^.]+$/, '') + '.icns', blob: new Blob([icns], {type:'application/octet-stream'})});
-          return;
-        } else {
-          const mime = targetFormat === 'jpg' ? 'image/jpeg' : 'image/' + targetFormat;
-          canvas.toBlob(blob => {
-            resolve({name: file.name.replace(/\.[^.]+$/, '') + '.' + targetFormat, blob});
-          }, mime, targetFormat === 'jpg' ? quality : quality);
+        if (filterString) {
+          ctx.filter = filterString.trim();
         }
+
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas);
       };
       img.onerror = reject;
       img.src = reader.result;
@@ -283,7 +261,46 @@ function convertFileToFormat(file, opts={}){
   });
 }
 
-async function convertAndDownload(files){
+async function convertFileToFormat(file, opts = {}) {
+  const { targetFormat = 'png', quality = 0.92 } = opts;
+  const canvas = await processImageToCanvas(file, opts);
+  const { PDFDocument } = PDFLib;
+
+  if (targetFormat === 'ico') {
+    const pngDataUrl = canvas.toDataURL('image/png');
+    const pngBytes = dataURLToUint8Array(pngDataUrl);
+    const ico = buildIcoFromPng(pngBytes);
+    return { name: file.name.replace(/\.[^.]+$/, '') + '.ico', blob: new Blob([ico], { type: 'image/x-icon' }) };
+  }
+
+  if (targetFormat === 'icns') {
+    const pngDataUrl = canvas.toDataURL('image/png');
+    const pngBytes = dataURLToUint8Array(pngDataUrl);
+    const icns = buildIcnsFromPng(pngBytes);
+    return { name: file.name.replace(/\.[^.]+$/, '') + '.icns', blob: new Blob([icns], { type: 'application/octet-stream' }) };
+  }
+
+  if (targetFormat === 'pdf') {
+    const pdfDoc = await PDFDocument.create();
+    const pngDataUrl = canvas.toDataURL('image/png');
+    const pngBytes = dataURLToUint8Array(pngDataUrl);
+    const pngImage = await pdfDoc.embedPng(pngBytes);
+
+    const page = pdfDoc.addPage([pngImage.width, pngImage.height]);
+    page.drawImage(pngImage, { x: 0, y: 0, width: pngImage.width, height: pngImage.height });
+
+    const pdfBytes = await pdfDoc.save();
+    return { name: file.name.replace(/\.[^.]+$/, '') + '.pdf', blob: new Blob([pdfBytes], { type: 'application/pdf' }) };
+  }
+
+  // Default: PNG, JPG, WebP (Original 'else' block)
+  const mime = targetFormat === 'jpg' ? 'image/jpeg' : 'image/' + targetFormat;
+  // Convert callback-based toBlob to a Promise
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, mime, quality));
+  return { name: file.name.replace(/\.[^.]+$/, '') + '.' + targetFormat, blob };
+}
+
+async function convertAndDownload(files) {
   const fmt = formatSelect.value;
   // Read Settings
   const width = resizeWidthInput.value ? Number(resizeWidthInput.value) : null;
@@ -291,25 +308,67 @@ async function convertAndDownload(files){
   const invert = invertColorsCheck.checked;
   const grayscale = grayscaleColorsCheck.checked;
   const quality = Number(qualitySlider.value) || 0.92;
-  
-  if(files.length === 0) return alert('No files selected');
 
-  const options = {targetFormat: fmt, width, height, invert, grayscale, quality};
+  if (files.length === 0) return alert('No files selected');
 
-  if(files.length === 1){
-    const res = await convertFileToFormat(files[0], options);
-    const url = URL.createObjectURL(res.blob);
-    const a = document.createElement('a'); a.href = url; a.download = res.name; a.click();
-    URL.revokeObjectURL(url);
+  const options = { targetFormat: fmt, width, height, invert, grayscale, quality };
+
+  if (fmt === 'pdf') {
+    const { PDFDocument } = PDFLib;
+    const pdfDoc = await PDFDocument.create();
+    
+    showProcessing(convertAllBtn);
+
+    for (const f of files) {
+      try {
+        const canvas = await processImageToCanvas(f, options);
+        const pngDataUrl = canvas.toDataURL('image/png');
+        const pngBytes = dataURLToUint8Array(pngDataUrl);
+        const pngImage = await pdfDoc.embedPng(pngBytes);
+
+        const page = pdfDoc.addPage([pngImage.width, pngImage.height]);
+        page.drawImage(pngImage, { x: 0, y: 0, width: pngImage.width, height: pngImage.height });
+      } catch (err) {
+        console.error('Failed to add image to PDF:', f.name, err);
+        alert(`Failed to process ${f.name}. Skipping.`);
+      }
+    }
+    
+    resetProcessing(convertAllBtn, 'Convert Selected');
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    saveAs(blob, 'converted_images.pdf');
     return;
   }
-  const zip = new JSZip();
-  for(const f of files){
-    const res = await convertFileToFormat(f, options);
-    zip.file(res.name, res.blob);
+
+  if (files.length === 1) {
+    try {
+      showProcessing(convertAllBtn);
+      const res = await convertFileToFormat(files[0], options);
+      const url = URL.createObjectURL(res.blob);
+      const a = document.createElement('a'); a.href = url; a.download = res.name; a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('An error occurred during conversion: ' + err.message);
+    }
+    resetProcessing(convertAllBtn, 'Convert Selected');
+    return;
   }
-  const content = await zip.generateAsync({type:'blob'});
-  saveAs(content, `converted_images.zip`);
+
+  try {
+    showProcessing(convertAllBtn);
+    const zip = new JSZip();
+    for (const f of files) {
+      const res = await convertFileToFormat(f, options);
+      zip.file(res.name, res.blob);
+    }
+    const content = await zip.generateAsync({ type: 'blob' });
+    saveAs(content, `converted_images.zip`);
+  } catch (err) {
+    alert('An error occurred during zipping: ' + err.message);
+  }
+  resetProcessing(convertAllBtn, 'Convert Selected');
 }
 
 convertAllBtn.addEventListener('click', ()=> {
