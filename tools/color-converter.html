@@ -1,0 +1,56 @@
+<section id="color-converter" class="tool card">
+    <h2><i class="fa-solid fa-palette"></i> Color Converter</h2>
+    <p>Select a color and see its value in Hex, RGB, and HSL formats.</p>
+    
+    <div class="color-converter-layout">
+    
+    <div class="color-picker-wrapper">
+        <input type="color" id="colorPicker" value="#333333">
+    </div>
+    
+    <div class="color-inputs-wrapper">
+        
+        <div class="color-input-group">
+        <label for="hexInput">HEX</label>
+        <input type="text" id="hexInput" value="#333333">
+        </div>
+        
+        <div class="color-input-group">
+        <label>RGB (Red, Green, Blue)</label>
+        <div class="slider-input-row">
+            <input type="range" id="rgbR" min="0" max="255" value="51" aria-label="Red">
+            <span id="rgbRValue">51</span>
+        </div>
+        <div class="slider-input-row">
+            <input type="range" id="rgbG" min="0" max="255" value="51" aria-label="Green">
+            <span id="rgbGValue">51</span>
+        </div>
+        <div class="slider-input-row">
+            <input type="range" id="rgbB" min="0" max="255" value="51" aria-label="Blue">
+            <span id="rgbBValue">51</span>
+        </div>
+        </div>
+        
+        <div class="color-input-group">
+        <label>HSL (Hue, Saturation, Lightness)</label>
+        <div class="slider-input-row">
+            <input type="range" id="hslH" min="0" max="360" value="0" aria-label="Hue">
+            <span id="hslHValue">0</span>
+        </div>
+        <div class="slider-input-row">
+            <input type="range" id="hslS" min="0" max="100" value="0" aria-label="Saturation">
+            <span id="hslSValue">0</span>
+        </div>
+        <div class="slider-input-row">
+            <input type="range" id="hslL" min="0" max="100" value="20" aria-label="Lightness">
+            <span id="hslLValue">20</span>
+        </div>
+        </div>
+
+        <button id="getComplementaryBtn" style="width: 100%; margin-top: 10px;">
+        <i class="fa-solid fa-circle-half-stroke"></i> Get Complementary
+        </button>
+
+    </div>
+    </div>
+</section>

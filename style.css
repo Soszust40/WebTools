@@ -317,11 +317,11 @@ button[disabled]{
   border: 1px solid rgba(0,0,0,0.1);
   border-radius: 8px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  padding: 12px;
+  padding: 16px;
   z-index: 10;
-  width: 280px;
+  width: 320px;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .settings-popup.visible {
@@ -337,6 +337,79 @@ button[disabled]{
 
 .settings-popup input[type="number"] {
   width: 100%;
+}
+
+.settings-popup {
+  width: 320px;
+  padding: 16px;
+  gap: 12px;
+}
+
+.settings-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.settings-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-col label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0;
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.checkbox-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.compact-check {
+  flex-direction: row !important;
+  align-items: center !important;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.settings-divider {
+  height: 1px;
+  background: rgba(0,0,0,0.1);
+  margin: 4px 0;
+  width: 100%;
+}
+
+body.dark .settings-divider {
+  background: rgba(255,255,255,0.1);
+}
+
+.full-color-input {
+  width: 100%;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.range-wrapper {
+  display: flex;
+  align-items: center;
+  height: 36px;
+}
+.range-wrapper input {
+  width: 100%;
+  margin: 0;
 }
 
 .stats-row {

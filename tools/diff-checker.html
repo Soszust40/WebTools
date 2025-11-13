@@ -1,0 +1,34 @@
+<section id="diff-checker" class="tool card">
+    <h2><i class="fa-solid fa-code-compare"></i> Text/Code Diff</h2>
+    <p>Compare two blocks of text or code to see the differences highlighted.</p>
+    
+    <div class="diff-layout">
+    <div class="diff-pane">
+        <label for="diffOld">Old Text:</label>
+        <textarea id="diffOld" class="diff-textarea" aria-label="Old text input"></textarea>
+    </div>
+    <div class="diff-pane">
+        <label for="diffNew">New Text:</label>
+        <textarea id="diffNew" class="diff-textarea" aria-label="New text input"></textarea>
+    </div>
+    <label>
+        <input type="checkbox" id="diffIgnoreWhitespace" /> Ignore Whitespace
+    </label>
+    </div>
+    
+    <div class="controls-row" style="margin-top: 12px;">
+    <label>Diff Type:
+        <select id="diffType">
+        <option value="lines">Lines</option>
+        <option value="words">Words</option>
+        <option value="chars">Characters</option>
+        </select>
+    </label>
+    <button id="diffCompareBtn">Compare</button>
+    </div>
+
+    <label for="diffOutput" style="display: block; margin-top: 12px; margin-bottom: 6px;">Differences:</label>
+    <div id="diffOutputWrapper" class="diff-output">
+    <pre id="diffOutput" aria-live="polite">Click 'Compare' to see results...</pre>
+    </div>
+</section>

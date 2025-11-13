@@ -1,0 +1,81 @@
+<section id="image-converter" class="tool active card">
+    <h2><i class="fa-solid fa-image"></i> Image Converter</h2>
+    <p>Upload one or more images, preview, then convert to PNG / JPG / WebP / ICO / ICNS / PDF. Download individually or all as ZIP.</p>
+
+    <label class="file-drop" id="imageDrop">
+    <input type="file" id="imageInput" accept="image/*" multiple />
+    <span>Drag & drop images here or click to select</span>
+    </label>
+
+    <div class="controls-row">
+    <label>Format:
+        <select id="formatSelect">
+        <option value="png">PNG</option>
+        <option value="jpg">JPG</option>
+        <option value="webp">WebP</option>
+        <option value="ico">ICO</option>
+        <option value="icns">ICNS</option>
+        <option value="pdf">PDF</option>
+        </select>
+    </label>
+
+    <label id="qualityLabel" style="display:none">Quality:
+        <input id="qualitySlider" type="range" min="0.1" max="1" step="0.05" value="0.92" />
+        <span id="qualityValue">0.92</span>
+    </label>
+
+    <button id="convertAllBtn" style="display:none;">Convert Selected</button>
+    
+    <div class="settings-wrapper">
+        <button id="imageSettingsBtn" class="icon-btn" title="Image Settings"><i class="fa-solid fa-gear"></i></button>
+        <div id="imageSettingsPopup" class="settings-popup">
+        <div class="settings-row">
+            <div class="settings-col">
+            <label>Width (px)</label>
+            <input id="resizeWidth" type="number" min="8" placeholder="Auto" />
+            </div>
+            <div class="settings-col">
+            <label>Height (px)</label>
+            <input id="resizeHeight" type="number" min="8" placeholder="Auto" />
+            </div>
+        </div>
+
+        <div class="checkbox-group">
+            <label class="compact-check">
+            <input type="checkbox" id="invertColors" /> Invert
+            </label>
+            <label class="compact-check">
+            <input type="checkbox" id="grayscaleColors" /> B & W
+            </label>
+        </div>
+
+        <div class="settings-divider"></div>
+
+        <div class="settings-row">
+            <label class="compact-check" style="width: 100%; font-weight: bold;">
+            <input type="checkbox" id="removeBg" /> Remove Background
+            </label>
+        </div>
+
+        <div id="removeBgOptions" style="display:none; flex-direction: column; gap: 10px;">
+            <div class="settings-row">
+            
+            <div class="settings-col" style="flex: 0.6;">
+                <label>Color</label>
+                <input type="color" id="removeBgColor" value="#ffffff" class="full-color-input" title="Choose color to remove" />
+            </div>
+            
+            <div class="settings-col" style="flex: 1.4;">
+                <label>Tolerance (<span id="bgToleranceVal">15</span>%)</label>
+                <div class="range-wrapper">
+                <input type="range" id="bgTolerance" min="1" max="100" value="15" />
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>
+
+    <div id="previewGrid" class="preview-grid" aria-live="polite"></div>
+</section>

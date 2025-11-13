@@ -20,7 +20,7 @@ This project includes the following tools:
 * **🖼️ Image Converter**
     * Convert multiple images to **PNG**, **JPG**, **WebP**, **ICO**, **ICNS**, or **PNG**.
     * Adjustable quality settings for JPG and WebP formats.
-    * Advanced options to **resize** (by width/height), **invert colors**, and **remove colors**.
+    * Advanced options to **resize** (by width/height), **invert colors**, **remove colors**, and **remove background**.
     * Download files individually or all at once as a single **.zip archive**.
 
 * **📄 PDF Tools**

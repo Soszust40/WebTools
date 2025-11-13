@@ -1,0 +1,30 @@
+<section id="vigenere-cipher" class="tool card">
+    <h2><i class="fa-solid fa-lock"></i> Vigenère Cipher</h2>
+    <p>Encrypt or decrypt text using a keyword.</p>
+    
+    <label for="vigenereKey" style="display: block; margin-bottom: 6px;">Keyword:</label>
+    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+    <input type="text" id="vigenereKey" placeholder="Secret keyword..." style="flex: 1; margin: 0;">
+    <button id="vigenereGenerateKeyBtn" type="button" title="Generate Random Key" class="icon-btn"><i class="fa-solid fa-dice"></i></button>
+    </div>
+
+    <label for="vigenereInput" style="display: block; margin-bottom: 6px;">Input Text:</label>
+    <textarea id="vigenereInput" class="wide-textarea" rows="8" placeholder="Enter text to encrypt or decrypt..."></textarea>
+
+    <div class="controls-row" style="margin-top: 12px; margin-bottom: 12px;">
+    <label>
+        <input type="checkbox" id="vigenerePreserveCase" /> Preserve Case
+    </label>
+    <label>
+        <input type="checkbox" id="vigenereKeepNonAlpha" checked /> Keep Non-Alphabetic Chars
+    </label>
+    </div>
+
+    <div class="controls-row" style="gap: 12px;">
+    <button id="vigenereEncryptBtn"><i class="fa-solid fa-lock"></i> Encrypt</button>
+    <button id="vigenereDecryptBtn"><i class="fa-solid fa-unlock"></i> Decrypt</button>
+    </div>
+
+    <label for="vigenereOutput" style="display: block; margin-top: 12px; margin-bottom: 6px;">Output Text:</label>
+    <textarea id="vigenereOutput" class="wide-textarea" rows="8" placeholder="Result..." readonly></textarea>
+</section>

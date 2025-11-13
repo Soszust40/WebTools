@@ -1,0 +1,18 @@
+<section id="list-sorter" class="tool card">
+    <h2><i class="fa-solid fa-arrow-down-a-z"></i> List Sorter</h2>
+    <textarea id="listInput" rows="8" placeholder="Enter one item per line..."></textarea>
+    <div class="controls-row">
+    <label><input type="checkbox" id="uniqueOnly" /> Unique</label>
+    <label><input type="checkbox" id="caseSensitive" /> Case sensitive</label>
+    <label><input type="checkbox" id="numericSort" /> Numeric sort</label>
+    <label>Order:
+        <select id="sortOrder">
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+        </select>
+    </label>
+    <button id="sortBtn">Sort</button>
+    <button id="clearList">Clear</button>
+    </div>
+    <textarea id="listOutput" rows="8" placeholder="Sorted result..." readonly></textarea>
+</section>

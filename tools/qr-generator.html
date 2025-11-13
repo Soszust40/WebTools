@@ -1,0 +1,25 @@
+<section id="qr-generator" class="tool card">
+    <h2><i class="fa-solid fa-qrcode"></i> QR Generator</h2>
+    <div class="qr-input-row">
+    <label class="qr-label" for="qrText" style="display: block; margin-bottom: 6px;">Enter text or URL:</label>
+    <textarea id="qrText" rows="2" placeholder="Text or URL..." style="width: 100%;"></textarea>
+    </div>
+    <div class="controls-row">
+    <label>Size:
+        <select id="qrSize">
+        <option value="200">200</option>
+        <option value="300">300</option>
+        <option value="400">400</option>
+        </select>
+    </label>
+    <label>Background Color:
+        <input type="color" id="qrBgColor" value="#FFFFFF" style="width: 36px; height: 24px; padding: 0; border: none; background: none;">
+    </label>
+    <label>QR Color:
+        <input type="color" id="qrFgColor" value="#000000" style="width: 36px; height: 24px; padding: 0; border: none; background: none;">
+    </label>
+    <button id="generateQR">Generate</button>
+    <button id="saveQR" style="display:none">Save as PNG</button>
+    </div>
+    <canvas id="qrCanvas" aria-hidden="true" width="200" height="200"></canvas>
+</section>
