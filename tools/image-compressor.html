@@ -1,0 +1,43 @@
+<section id="image-compressor" class="tool card">
+  <h2><i class="fa-solid fa-compress"></i> Image Compressor</h2>
+  <p>Reduce image file size instantly. Adjust the compression level to see a live preview of your savings.</p>
+
+  <label class="file-drop" id="compressDrop">
+    <input type="file" id="compressInput" accept="image/jpeg, image/png, image/webp" />
+    <span>Drag & drop an image here or click to select</span>
+  </label>
+
+    <div id="compressorWorkspace" style="display: none;">
+        <div class="controls-row" style="margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
+        
+        <label style="flex: 1; display: flex; align-items: center; gap: 8px;">
+            Format:
+            <select id="compressFormat">
+            <option value="image/jpeg">JPEG</option>
+            <option value="image/webp" selected>WebP (Best Compression)</option>
+            </select>
+        </label>
+
+        <label style="flex: 2; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <span>Quality: <span id="compressQualityVal">80</span>%</span>
+            <input type="range" id="compressQuality" min="1" max="100" value="80" style="width: 100%; max-width: 200px;" />
+        </label>
+
+        <div style="flex: 1; text-align: right;">
+            <button id="downloadCompressedBtn" class="primary-btn">Download</button>
+        </div>
+        
+        </div>
+    </div>
+
+    <div id="compressStats" class="compression-stats" style="display: none; gap: 20px; justify-content: center; margin-bottom: 20px; font-weight: bold;">
+        <div style="color: #d9534f;">Original: <span id="origSize">0 KB</span></div>
+        <div style="color: #5cb85c;">Compressed: <span id="newSize">0 KB</span></div>
+        <div style="color: #0275d8;">Saved: <span id="savedPercent">0%</span></div>
+    </div>
+
+    <div id="previewWrapper" class="preview-container" style="display: none; text-align: center; max-height: 400px; overflow: hidden; border-radius: 8px; background: #f0f0f0;">
+        <img id="compressPreviewImg" style="max-width: 100%; max-height: 400px; object-fit: contain;" />
+    </div>
+  </div>
+</section>
