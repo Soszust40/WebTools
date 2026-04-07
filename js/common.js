@@ -5,32 +5,19 @@ const $$ = s => Array.from(document.querySelectorAll(s));
 document.addEventListener('DOMContentLoaded', () => {
   const sidebar = $('#sidebar');
   const hamburger = $('#hamburger');
-  const themeSwitch = $('#themeSwitch') || null;
-  const themeToggleTop = $('#themeToggle');
+  const themeToggleTop = document.getElementById('themeToggle');
 
+  setTimeout(() => {
+    document.body.classList.remove('preload');
+  }, 100);
+
+  // Top Nav Button Logic
   if(themeToggleTop){
     themeToggleTop.addEventListener('click', ()=> {
-      const dark = !document.body.classList.contains('dark');
-      document.body.classList.toggle('dark', dark);
-      localStorage.setItem('theme', dark ? 'dark' : 'light');
-      if(themeSwitch) themeSwitch.checked = dark;
+      const isDark = document.body.classList.contains('dark');
+      document.body.classList.toggle('dark', !isDark);
+      localStorage.setItem('theme', !isDark ? 'dark' : 'light');
     });
-  }
-
-  if(themeSwitch){
-    themeSwitch.addEventListener('change', ()=> {
-      document.body.classList.toggle('dark', themeSwitch.checked);
-      localStorage.setItem('theme', themeSwitch.checked ? 'dark' : 'light');
-    });
-  }
-
-  // Load saved theme
-  const saved = localStorage.getItem('theme');
-  if(saved === 'light'){ 
-    document.body.classList.remove('dark'); 
-    if(themeSwitch) themeSwitch.checked = false; 
-  } else {
-    if(themeSwitch) themeSwitch.checked = true;
   }
 
   // Sidebar Toggle

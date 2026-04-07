@@ -7,12 +7,23 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<body class="dark">
+<body class="preload">
+  <script>
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.body.classList.add('dark');
+    }
+  </script>
+
   <header class="topbar">
     <button id="hamburger" aria-label="Toggle menu">☰</button>
     <h1>WebTools</h1>
     <div class="top-actions">
-      <button id="themeToggle" title="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+        <div class="theme-toggle-container">
+            <button id="themeToggle" class="btn-theme-toggle" aria-label="Toggle Light/Dark Mode">
+                <i class="fa-solid fa-moon"></i>
+                <i class="fa-solid fa-sun"></i> </button>
+        </div>
     </div>
   </header>
 
