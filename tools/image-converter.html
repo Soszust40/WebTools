@@ -59,17 +59,32 @@
 
         <div id="removeBgOptions" style="display:none; flex-direction: column; gap: 10px;">
             <div class="settings-row">
-            
             <div class="settings-col" style="flex: 0.6;">
                 <label>Color</label>
                 <input type="color" id="removeBgColor" value="#ffffff" class="full-color-input" title="Choose color to remove" />
             </div>
-            
             <div class="settings-col" style="flex: 1.4;">
                 <label>Tolerance (<span id="bgToleranceVal">15</span>%)</label>
                 <div class="range-wrapper">
                 <input type="range" id="bgTolerance" min="1" max="100" value="15" />
                 </div>
+            </div>
+            </div>
+        </div>
+
+        <div class="settings-divider"></div>
+
+        <div class="settings-row">
+            <label class="compact-check" style="width: 100%; font-weight: bold;">
+            <input type="checkbox" id="replaceAlpha" /> Replace Transparency
+            </label>
+        </div>
+
+        <div id="replaceAlphaOptions" style="display:none; flex-direction: column; gap: 10px;">
+            <div class="settings-row">
+            <div class="settings-col" style="flex: 1;">
+                <label>Alpha Color</label>
+                <input type="color" id="replaceAlphaColor" value="#ffffff" class="full-color-input" title="Choose color to replace transparency" />
             </div>
             </div>
         </div>

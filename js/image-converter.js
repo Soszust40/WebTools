@@ -20,6 +20,9 @@ document.addEventListener('html-components-loaded', () => {
   const removeBgColorInput = $('#removeBgColor');
   const bgToleranceInput = $('#bgTolerance');
   const bgToleranceVal = $('#bgToleranceVal');
+  const replaceAlphaCheck = $('#replaceAlpha');
+  const replaceAlphaOptions = $('#replaceAlphaOptions');
+  const replaceAlphaColorInput = $('#replaceAlphaColor');
 
   let imageFiles = [];
 
@@ -116,18 +119,91 @@ document.addEventListener('html-components-loaded', () => {
     return arr;
   }
 
-  function buildIcoFromPng(pngBytes){
-    const pngLen = pngBytes.length;
-    const header = new ArrayBuffer(6 + 16);
-    const dv = new DataView(header);
-    dv.setUint16(0, 0, true); dv.setUint16(2, 1, true); dv.setUint16(4, 1, true);
-    dv.setUint8(6, 0); dv.setUint8(7, 0); dv.setUint8(8, 0); dv.setUint8(9, 0);
-    dv.setUint16(10, 1, true); dv.setUint16(12, 32, true);
-    dv.setUint32(14, pngLen, true); dv.setUint32(18, 22, true); 
-    const data = new Uint8Array(header.byteLength + pngLen);
-    data.set(new Uint8Array(header), 0);
-    data.set(pngBytes, header.byteLength);
-    return data.buffer;
+  function buildIcoFromCanvas(sourceCanvas) {
+    let canvas = sourceCanvas;
+    let w = canvas.width;
+    let h = canvas.height;
+
+    if (w > 256 || h > 256) {
+      const scale = Math.min(256 / w, 256 / h);
+      w = Math.max(1, Math.round(w * scale));
+      h = Math.max(1, Math.round(h * scale));
+      
+      canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(sourceCanvas, 0, 0, w, h);
+    }
+
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+
+    const andStride = Math.ceil(w / 32) * 4;
+    const andMaskSize = andStride * h;
+    const xorMaskSize = w * h * 4;
+    const payloadSize = 40 + xorMaskSize + andMaskSize;
+
+    const buffer = new ArrayBuffer(22 + payloadSize);
+    const view = new DataView(buffer);
+
+    view.setUint16(0, 0, true);
+    view.setUint16(2, 1, true);
+    view.setUint16(4, 1, true);
+
+    view.setUint8(6, w === 256 ? 0 : w);
+    view.setUint8(7, h === 256 ? 0 : h);
+    view.setUint8(8, 0);
+    view.setUint8(9, 0);
+    view.setUint16(10, 1, true);
+    view.setUint16(12, 32, true);
+    view.setUint32(14, payloadSize, true);
+    view.setUint32(18, 22, true);
+
+    const bmpOffset = 22;
+    view.setUint32(bmpOffset, 40, true);
+    view.setInt32(bmpOffset + 4, w, true);
+    view.setInt32(bmpOffset + 8, h * 2, true);
+    view.setUint16(bmpOffset + 12, 1, true);
+    view.setUint16(bmpOffset + 14, 32, true);
+    view.setUint32(bmpOffset + 16, 0, true);
+    view.setUint32(bmpOffset + 20, xorMaskSize + andMaskSize, true);
+    view.setInt32(bmpOffset + 24, 0, true);
+    view.setInt32(bmpOffset + 28, 0, true);
+    view.setUint32(bmpOffset + 32, 0, true);
+    view.setUint32(bmpOffset + 36, 0, true);
+
+    let pixelOffset = bmpOffset + 40;
+    for (let y = h - 1; y >= 0; y--) {
+      for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4;
+        view.setUint8(pixelOffset++, data[i + 2]); // B
+        view.setUint8(pixelOffset++, data[i + 1]); // G
+        view.setUint8(pixelOffset++, data[i]);     // R
+        view.setUint8(pixelOffset++, data[i + 3]); // A
+      }
+    }
+
+    const andBaseOffset = bmpOffset + 40 + xorMaskSize;
+    for (let y = h - 1; y >= 0; y--) {
+      const destRow = h - 1 - y;
+      const rowStart = andBaseOffset + (destRow * andStride);
+      for (let x = 0; x < w; x++) {
+        const alpha = data[((y * w) + x) * 4 + 3];
+        if (alpha < 128) {
+          const byteIndex = rowStart + (x >> 3);
+          const bitIndex = 7 - (x & 7);
+          let currentByte = view.getUint8(byteIndex);
+          currentByte |= (1 << bitIndex);
+          view.setUint8(byteIndex, currentByte);
+        }
+      }
+    }
+
+    return buffer;
   }
 
   function buildIcnsFromPng(pngBytes){
@@ -165,7 +241,9 @@ document.addEventListener('html-components-loaded', () => {
       grayscale = false,
       removeBg = false,
       removeColor = '#ffffff',
-      tolerance = 15
+      tolerance = 15,
+      replaceAlpha = false,
+      alphaColor = '#ffffff'
     } = opts;
 
     return new Promise((resolve, reject) => {
@@ -194,21 +272,43 @@ document.addEventListener('html-components-loaded', () => {
 
           ctx.drawImage(img, 0, 0, w, h);
 
-          if (removeBg) {
+          // Get image data once if we need pixel manipulation
+          if (removeBg || replaceAlpha) {
             const imageData = ctx.getImageData(0, 0, w, h);
             const data = imageData.data;
-            const target = hexToRgb(removeColor);
-            const thresh = (tolerance / 100) * (255 * 3); 
 
-            if (target) {
-              for (let i = 0; i < data.length; i += 4) {
-                const r = data[i], g = data[i + 1], b = data[i + 2];
-                const diff = Math.abs(r - target.r) + Math.abs(g - target.g) + Math.abs(b - target.b);
-                if (diff <= thresh) data[i + 3] = 0;
+            if (removeBg) {
+              const target = hexToRgb(removeColor);
+              const thresh = (tolerance / 100) * (255 * 3); 
+
+              if (target) {
+                for (let i = 0; i < data.length; i += 4) {
+                  const r = data[i], g = data[i + 1], b = data[i + 2];
+                  const diff = Math.abs(r - target.r) + Math.abs(g - target.g) + Math.abs(b - target.b);
+                  if (diff <= thresh) data[i + 3] = 0;
+                }
               }
-              ctx.putImageData(imageData, 0, 0);
             }
+
+            if (replaceAlpha) {
+              const targetColor = hexToRgb(alphaColor);
+
+              if (targetColor) {
+                for (let i = 0; i < data.length; i += 4) {
+                  const a = data[i + 3] / 255;
+                  if (a < 1) {
+                    data[i] = data[i] * a + targetColor.r * (1 - a);
+                    data[i + 1] = data[i + 1] * a + targetColor.g * (1 - a);
+                    data[i + 2] = data[i + 2] * a + targetColor.b * (1 - a);
+                    data[i + 3] = 255;
+                  }
+                }
+              }
+            }
+
+            ctx.putImageData(imageData, 0, 0); 
           }
+          
           resolve(canvas);
         };
         img.onerror = reject; img.src = reader.result;
@@ -223,10 +323,8 @@ document.addEventListener('html-components-loaded', () => {
     const { PDFDocument } = PDFLib;
 
     if (targetFormat === 'ico') {
-      const pngDataUrl = canvas.toDataURL('image/png');
-      const pngBytes = dataURLToUint8Array(pngDataUrl);
-      const ico = buildIcoFromPng(pngBytes);
-      return { name: file.name.replace(/\.[^.]+$/, '') + '.ico', blob: new Blob([ico], { type: 'image/x-icon' }) };
+      const icoBuffer = buildIcoFromCanvas(canvas);
+      return { name: file.name.replace(/\.[^.]+$/, '') + '.ico', blob: new Blob([icoBuffer], { type: 'image/x-icon' }) };
     }
 
     if (targetFormat === 'icns') {
@@ -262,10 +360,12 @@ document.addEventListener('html-components-loaded', () => {
     const removeBg = removeBgCheck.checked;
     const removeColor = removeBgColorInput.value;
     const tolerance = Number(bgToleranceInput.value);
+    const replaceAlpha = replaceAlphaCheck.checked;
+    const alphaColor = replaceAlphaColorInput.value;
 
     if (files.length === 0) return alert('No files selected');
 
-    const options = { targetFormat: fmt, width, height, invert, grayscale, quality, removeBg, removeColor, tolerance };
+    const options = { targetFormat: fmt, width, height, invert, grayscale, quality, removeBg, removeColor, tolerance, replaceAlpha, alphaColor };
 
     if (fmt === 'pdf') {
       const { PDFDocument } = PDFLib;
@@ -342,6 +442,12 @@ document.addEventListener('html-components-loaded', () => {
   if(bgToleranceInput) {
     bgToleranceInput.addEventListener('input', () => {
       bgToleranceVal.textContent = bgToleranceInput.value;
+    });
+  }
+
+  if(replaceAlphaCheck) {
+    replaceAlphaCheck.addEventListener('change', () => {
+      replaceAlphaOptions.style.display = replaceAlphaCheck.checked ? 'flex' : 'none';
     });
   }
 
