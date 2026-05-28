@@ -18,12 +18,15 @@
     <div class="pdf-tool-option">
         <button id="pdfCombineClear" class="pdf-clear-btn" title="Clear selection" style="display: none;">&times;</button>
         <h3>Combine PDFs</h3>
-        <p class="muted">Merge multiple PDFs into one file.</p>
+        <p class="muted">Merge multiple PDFs into one file. Drag to reorder.</p>
         <label class="file-drop" id="pdfCombineDrop">
-        <input type="file" id="pdfCombineInput" accept=".pdf" multiple />
-        <span>Drag & drop PDFs to combine</span>
+            <input type="file" id="pdfCombineInput" accept=".pdf" multiple />
+            <span>Drag & drop PDFs to combine</span>
         </label>
-        <button id="pdfCombineBtn" style="width: 100%; margin-top: 10px; display: none;">Combine</button>
+        
+        <div id="pdfCombineList" class="pdf-sortable-list" style="display: none;"></div>
+
+        <button id="pdfCombineBtn" style="width: 100%; margin-top: 10px; display: none;">Combine Files</button>
     </div>
 
     <div class="pdf-tool-option">

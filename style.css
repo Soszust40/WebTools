@@ -622,6 +622,113 @@ body.dark .stat-saved { color: #5ab0ff; }
   transform: scale(1.1);
 }
 
+.pdf-sortable-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.pdf-sortable-item {
+  display: flex;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  cursor: grab;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pdf-sortable-item:active {
+  cursor: grabbing;
+}
+
+.pdf-sortable-item.dragging {
+  opacity: 0.5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.pdf-sortable-item .drag-handle {
+  padding: 0 12px;
+  color: var(--muted);
+  cursor: inherit;
+  font-size: 1.2rem;
+}
+
+.pdf-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pdf-item-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pdf-item-size {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.pdf-item-remove {
+  background: transparent;
+  color: #ff6b6b;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 8px;
+  transition: transform 0.15s;
+  border-radius: 50%;
+}
+
+.pdf-item-remove:hover {
+  transform: scale(1.15);
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.pdf-item-preview {
+  width: 50px;
+  height: 65px;
+  background: #f8f9fa;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 4px;
+  margin-right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.pdf-item-preview canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.pdf-preview-loading {
+  font-size: 0.65rem;
+  color: var(--muted);
+  animation: pdfPulse 1.5s infinite;
+}
+
+@keyframes pdfPulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
 #qrCanvas{
   display:block;
   margin-top:12px;
